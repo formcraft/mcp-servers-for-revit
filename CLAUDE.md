@@ -39,6 +39,10 @@ lives in `Z:\00_Standards\` and in the claude.ai Project "REVIT MCP".
   parameter: if one is missing, report it as a dictionary change request.
 - Revit version for the pilot: 2025.
 
+## The Formcraft Browser pane
+- The pane in Revit runs the same `fmc_file` and `fmc_family` code through `build/fmc/cli.js`, so it follows these
+  rules too. Rows in `FMC_MCP_FileLog.csv` may come from the user's clicks in the pane as well as from Claude.
+
 ## Keep tokens low
 - Prefer one batch call over many small ones; ask for summaries, not element dumps.
 - The FMC tool profile hides upstream tools Formcraft does not use (`FMC_TOOL_PROFILE=full` restores them).

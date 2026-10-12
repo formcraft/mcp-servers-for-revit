@@ -1,5 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   DEFAULT_CONFIG, GuardConfig, archivePlan, checkTemplatePath, checkWritePath, csvLine, isInside,
   liveLockVerdict, loadConfig, nameProblems, WRITE_COMMANDS,
@@ -93,4 +96,13 @@ test("archive moves the file and its backups to _Archive with a timestamp", () =
 
 test("csv lines quote commas and quotes", () => {
   assert.equal(csvLine(["a", "b,c", 'd"e', true]), 'a,"b,c","d""e",true\r\n');
+});
+
+test("live-model lock agrees with the shared cases (the Formcraft Browser's C# copy runs the same file)", () => {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const fixture = JSON.parse(fs.readFileSync(path.resolve(here, "../../src/fmc/fixtures/lock_cases.json"), "utf8"));
+  for (const c of fixture.cases) {
+    const cfgCase: GuardConfig = { ...DEFAULT_CONFIG, ...fixture.config, live_model_lock: c.lock ?? fixture.config.live_model_lock };
+    assert.equal(liveLockVerdict(c.doc, cfgCase).ok, c.ok, c.name);
+  }
 });
