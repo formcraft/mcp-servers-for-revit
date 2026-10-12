@@ -43,6 +43,10 @@ lives in `Z:\00_Standards\` and in the claude.ai Project "REVIT MCP".
   parameter: if one is missing, report it as a dictionary change request.
 - Revit version for the pilot: 2025.
 
+## The Formcraft Browser pane
+- The pane in Revit runs the same `fmc_file` and `fmc_family` code through `build/fmc/cli.js`, so it follows these
+  rules too. Rows in `FMC_MCP_FileLog.csv` may come from the user's clicks in the pane as well as from Claude.
+
 ## Developing this fork (Claude Code)
 - **Run book: `docs/fmc/EXECUTION.md`** (paths on the pilot PC, the status table, the loop for every step, the
   pilot and phase 1-2 task lists). Commands: `/fmc-start` (pull, builds, status), `/fmc-pilot`, `/fmc-step [step]`

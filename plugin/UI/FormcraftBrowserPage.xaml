@@ -1,0 +1,277 @@
+<UserControl x:Class="revit_mcp_plugin.UI.FormcraftBrowserPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             MinWidth="260" FontSize="13"
+             FontFamily="{DynamicResource Sans}" Background="{DynamicResource Surface}" Foreground="{DynamicResource Text}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/RevitMCPPlugin;component/UI/FormcraftStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 1. Status strip: connection, active document, not-ready cards -->
+        <Border Grid.Row="0" BorderBrush="{DynamicResource Divider}" BorderThickness="0,0,0,1" Padding="12,10">
+            <StackPanel>
+                <DockPanel>
+                    <Button x:Name="StartService" DockPanel.Dock="Right" Style="{StaticResource SmallPrimary}" Content="Start service"
+                            Click="StartService_Click" Visibility="Collapsed"
+                            ToolTip="Start listening for Claude on port 8080"/>
+                    <TextBlock x:Name="PortText" DockPanel.Dock="Right" Style="{StaticResource MonoMeta}" VerticalAlignment="Center"/>
+                    <Ellipse x:Name="ConnDot" Width="9" Height="9" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="ConnText" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                </DockPanel>
+
+                <Border x:Name="DocCard" Margin="0,6,0,0" CornerRadius="6" Padding="8,7">
+                    <DockPanel>
+                        <Path x:Name="DocIcon" DockPanel.Dock="Left" Width="16" Height="16" Stretch="None" Margin="0,1,8,0" VerticalAlignment="Top"
+                              StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round">
+                            <Path.RenderTransform><ScaleTransform ScaleX="0.6667" ScaleY="0.6667"/></Path.RenderTransform>
+                        </Path>
+                        <TextBlock x:Name="DocWhere" DockPanel.Dock="Right" FontSize="11.5" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                        <StackPanel>
+                            <TextBlock x:Name="DocTitle" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                            <TextBlock x:Name="DocLine" FontSize="11.5" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+
+                <ItemsControl x:Name="ProblemList">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="0,8,0,0" Style="{StaticResource Callout}">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Style="{StaticResource CalloutText}"/>
+                                    <TextBlock Text="{Binding Text}" Style="{StaticResource CalloutText}"/>
+                                    <Button Content="{Binding FixLabel}" Visibility="{Binding FixVisibility}" Style="{StaticResource Small}"
+                                            HorizontalAlignment="Left" Margin="0,6,0,0" Click="Fix_Click" Tag="{Binding}"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Border x:Name="ProbeCard" Margin="0,8,0,0" Style="{StaticResource Callout}" Visibility="Collapsed">
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right" Content="✕" Style="{StaticResource Small}" MinHeight="22" Padding="6,0"
+                                VerticalAlignment="Top" Click="CloseProbe_Click" ToolTip="Dismiss"/>
+                        <TextBlock x:Name="ProbeText" Style="{StaticResource CalloutText}"/>
+                    </DockPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- 2. Section tabs -->
+        <Border Grid.Row="1" Margin="12,10,12,6" Padding="3" CornerRadius="6" Background="{DynamicResource SegmentTrack}">
+            <UniformGrid Rows="1">
+                <RadioButton x:Name="TabFamilies" Style="{StaticResource SegTab}" Content="Families" GroupName="Sections" IsChecked="True" Checked="Tab_Checked" Margin="0,0,2,0"/>
+                <RadioButton x:Name="TabFiles" Style="{StaticResource SegTab}" Content="Files" GroupName="Sections" Checked="Tab_Checked" Margin="0,0,2,0"/>
+                <RadioButton x:Name="TabActivity" Style="{StaticResource SegTab}" Content="Activity" GroupName="Sections" Checked="Tab_Checked" Margin="0,0,2,0"/>
+                <RadioButton x:Name="TabGuard" Style="{StaticResource SegTab}" Content="Guard" GroupName="Sections" Checked="Tab_Checked"/>
+            </UniformGrid>
+        </Border>
+
+        <!-- 3. Section body -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="12,2,12,8">
+            <Grid>
+                <!-- Families -->
+                <StackPanel x:Name="FamiliesPanel">
+                    <DockPanel Margin="0,4,0,8">
+                        <CheckBox x:Name="DryRun" DockPanel.Dock="Right" Content="Dry run" IsChecked="True" Margin="8,0,0,0"
+                                  Checked="DryRun_Changed" Unchecked="DryRun_Changed"
+                                  ToolTip="On: report what Build or Load test would do, without doing it (Manual 17.2)"/>
+                        <TextBlock DockPanel.Dock="Left" Text="Selection" Style="{StaticResource Label}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <Button DockPanel.Dock="Right" Content="Change…" Style="{StaticResource Small}" MinHeight="28" Margin="6,0,0,0" Click="ChangeSelection_Click"/>
+                        <Border BorderBrush="{DynamicResource BorderPane}" BorderThickness="1" CornerRadius="4" Padding="8,3" Background="{DynamicResource Surface}">
+                            <TextBlock x:Name="SelectionText" TextTrimming="CharacterEllipsis"/>
+                        </Border>
+                    </DockPanel>
+                    <ItemsControl x:Name="FamilyList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="4" Padding="6,3" Margin="0,0,0,2" MinHeight="44" ToolTip="{Binding Tip}">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding On}" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource SelectedRow}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <DockPanel>
+                                        <CheckBox DockPanel.Dock="Left" IsChecked="{Binding On, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <Border DockPanel.Dock="Right" Style="{StaticResource Chip}" Margin="8,0,0,0">
+                                            <TextBlock Text="{Binding Status}" Style="{StaticResource ChipText}"/>
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Name}" FontWeight="Medium" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding Meta}" Style="{StaticResource Meta}" TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock x:Name="FamiliesEmpty" Style="{StaticResource Label}" TextWrapping="Wrap" Margin="0,4" Visibility="Collapsed"/>
+                    <ItemsControl x:Name="FamilyMessages">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="0,8,0,0" Style="{StaticResource NoteBox}">
+                                    <TextBlock Text="{Binding Text}" Style="{StaticResource NoteText}"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <!-- Files -->
+                <StackPanel x:Name="FilesPanel" Visibility="Collapsed">
+                    <TextBlock Text="Open in Revit" Style="{StaticResource Label}" Margin="0,4,0,6"/>
+                    <ItemsControl x:Name="DocList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{DynamicResource DividerLight}" BorderThickness="0,0,0,1" Padding="6,4" MinHeight="46">
+                                    <DockPanel>
+                                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Button Content="Save as…" Style="{StaticResource Small}" Margin="0,0,4,0" Click="SaveAs_Click" Tag="{Binding}"
+                                                    IsEnabled="{Binding CanSave}" ToolTip="{Binding SaveTip}"/>
+                                            <Button Content="Close" Style="{StaticResource Small}" Click="Close_Click" Tag="{Binding}"
+                                                    IsEnabled="{Binding CanClose}" ToolTip="{Binding CloseTip}"/>
+                                        </StackPanel>
+                                        <StackPanel VerticalAlignment="Center" Margin="0,0,8,0">
+                                            <TextBlock Text="{Binding Title}" FontWeight="Medium" TextTrimming="CharacterEllipsis" ToolTip="{Binding Path}"/>
+                                            <TextBlock Text="{Binding Badge}" FontSize="11.5" TextTrimming="CharacterEllipsis">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="{DynamicResource TextMeta}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Kind}" Value="done"><Setter Property="Foreground" Value="{DynamicResource OkText}"/></DataTrigger>
+                                                            <DataTrigger Binding="{Binding Kind}" Value="bad"><Setter Property="Foreground" Value="{DynamicResource ErrText}"/></DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock x:Name="DocsEmpty" Text="No documents open." Style="{StaticResource Label}" Margin="0,4"/>
+                    <WrapPanel Margin="0,10,0,0">
+                        <Button x:Name="NewFromTemplate" Content="New from template…" Margin="0,0,6,6" Click="NewFromTemplate_Click"/>
+                        <Button x:Name="ArchiveFile" Content="Archive a closed file…" Margin="0,0,6,6" Click="Archive_Click"/>
+                    </WrapPanel>
+                    <TextBlock Style="{StaticResource Label}" TextWrapping="Wrap" LineHeight="17.4" Margin="0,4,0,0"
+                               Text="Writes go only to WIP and staging folders. Nothing is deleted: Archive moves a file to _Archive. Every action runs as a dry run first and asks before it writes."/>
+                    <ItemsControl x:Name="FileMessages">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="0,8,0,0" Style="{StaticResource NoteBox}">
+                                    <TextBlock Text="{Binding Text}" Style="{StaticResource NoteText}"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <!-- Activity -->
+                <StackPanel x:Name="ActivityPanel" Visibility="Collapsed">
+                    <TextBlock Text="From FMC_MCP_FileLog.csv" Style="{StaticResource Label}" Margin="0,4,0,6"/>
+                    <ItemsControl x:Name="LogList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{DynamicResource DividerLight}" BorderThickness="0,0,0,1" MinHeight="40" ToolTip="{Binding Tip}">
+                                    <DockPanel>
+                                        <TextBlock DockPanel.Dock="Left" Text="{Binding Time}" Style="{StaticResource MonoMeta}" Width="44" VerticalAlignment="Center"/>
+                                        <Border DockPanel.Dock="Right" Style="{StaticResource Chip}" Margin="8,0,0,0">
+                                            <TextBlock Text="{Binding Result}" Style="{StaticResource ChipText}"/>
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Center" Margin="8,0,0,0">
+                                            <TextBlock Text="{Binding Action}" FontWeight="Medium"/>
+                                            <TextBlock Text="{Binding Target}" Style="{StaticResource Meta}" TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock x:Name="LogEmpty" Style="{StaticResource Label}" TextWrapping="Wrap" Margin="0,4"
+                               Text="No actions logged yet. Builds, load tests and file actions appear here, whether Claude or this pane ran them."/>
+                </StackPanel>
+
+                <!-- Guard -->
+                <StackPanel x:Name="GuardPanel" Visibility="Collapsed">
+                    <ItemsControl x:Name="GuardList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{DynamicResource DividerLight}" BorderThickness="0,0,0,1" Padding="0,8">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Label}" Foreground="{DynamicResource TextSecondary}" Margin="0,0,8,0" TextWrapping="Wrap"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Value}" FontFamily="{DynamicResource Mono}" FontSize="11.5"
+                                                   LineHeight="17.25" TextWrapping="Wrap"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <WrapPanel Margin="0,10,0,0">
+                        <Button Content="Open fmc_guard.json" Margin="0,0,6,6" Click="OpenGuard_Click"/>
+                        <Button Content="Reload" Margin="0,0,6,6" Click="Reload_Click"/>
+                        <Button Content="Command settings…" Margin="0,0,6,6" Click="OpenSettings_Click" ToolTip="Enable or disable the add-in's MCP commands"/>
+                    </WrapPanel>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+
+        <!-- Command box: fixed commands that run the same code as the buttons (no AI). Type "help" for the list. -->
+        <Border Grid.Row="3" BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Padding="8,6">
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Content="Run" Style="{StaticResource SmallPrimary}" MinHeight="26" Margin="6,0,0,0" Click="RunCommand_Click"/>
+                <Grid>
+                    <TextBox x:Name="CommandBox" KeyDown="CommandBox_KeyDown" TextChanged="CommandBox_TextChanged" VerticalContentAlignment="Center"
+                             ToolTip="plan · dry run · yes build · yes build one by one · load test · yes load test · probe · pilot · start service · help"/>
+                    <TextBlock x:Name="CommandHint" Text="Type a command: plan, dry run, yes build, load test, help" Style="{StaticResource Meta}"
+                               IsHitTestVisible="False" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                </Grid>
+            </DockPanel>
+        </Border>
+
+        <!-- 4. Footer: section actions left, status note right -->
+        <!-- Compact footer (HANDOFF_NEXT C1): padding 4 x 8, 24 px buttons with a 3 px radius, 11.5 px text -->
+        <Border Grid.Row="4" BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Background="{DynamicResource SurfaceMuted}" Padding="8,4">
+            <Border.Resources>
+                <CornerRadius x:Key="ButtonRadius">3</CornerRadius>
+            </Border.Resources>
+            <DockPanel>
+                <StackPanel x:Name="FamilyActions" DockPanel.Dock="Left" Orientation="Horizontal">
+                    <Button x:Name="PlanButton" Style="{StaticResource Footer}" Content="Plan" Click="Plan_Click"
+                            ToolTip="Check every selected family against the kit before Revit is touched"/>
+                    <Button x:Name="BuildButton" Style="{StaticResource FooterPrimary}" Content="Build (dry run)" Click="Build_Click"/>
+                    <Button x:Name="LoadTestButton" Style="{StaticResource Footer}" Content="Load test" Click="LoadTest_Click"/>
+                </StackPanel>
+                <StackPanel x:Name="ActivityActions" DockPanel.Dock="Left" Orientation="Horizontal" Visibility="Collapsed">
+                    <Button Style="{StaticResource Footer}" Content="Open log folder" Click="OpenLog_Click"/>
+                </StackPanel>
+                <TextBlock x:Name="FooterNote" Style="{StaticResource Label}" FontSize="11.5" HorizontalAlignment="Right" VerticalAlignment="Center"
+                           TextAlignment="Right" TextWrapping="Wrap" Margin="8,0,0,0"/>
+            </DockPanel>
+        </Border>
+    </Grid>
+</UserControl>

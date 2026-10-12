@@ -11,6 +11,7 @@ using RevitMCPSDK.API.Models.JsonRPC;
 using RevitMCPSDK.API.Interfaces;
 using revit_mcp_plugin.Configuration;
 using revit_mcp_plugin.Utils;
+using revit_mcp_plugin.Fmc;
 
 namespace revit_mcp_plugin.Core
 {
@@ -168,6 +169,7 @@ namespace revit_mcp_plugin.Core
         {
             TcpClient tcpClient = (TcpClient)clientObj;
             NetworkStream stream = tcpClient.GetStream();
+            ActivityLog.ClientConnected();
 
             try
             {
@@ -214,6 +216,7 @@ namespace revit_mcp_plugin.Core
             }
             finally
             {
+                ActivityLog.ClientDisconnected();
                 tcpClient.Close();
             }
         }
@@ -243,20 +246,24 @@ namespace revit_mcp_plugin.Core
                 // Search for the command in the registry.
                 if (!_commandRegistry.TryGetCommand(request.Method, out var command))
                 {
+                    ActivityLog.Add(request.Method, false, 0, "Not enabled in the add-in's command settings");
                     return CreateErrorResponse(request.Id, JsonRPCErrorCodes.MethodNotFound,
                         $"Method '{request.Method}' not found");
                 }
 
                 // 执行命令
                 // Execute command.
+                var watch = System.Diagnostics.Stopwatch.StartNew();
                 try
                 {                
                     object result = command.Execute(request.GetParamsObject(), request.Id);
 
+                    ActivityLog.Add(request.Method, true, watch.ElapsedMilliseconds);
                     return CreateSuccessResponse(request.Id, result);
                 }
                 catch (Exception ex)
                 {
+                    ActivityLog.Add(request.Method, false, watch.ElapsedMilliseconds, ex.Message);
                     return CreateErrorResponse(request.Id, JsonRPCErrorCodes.InternalError, ex.Message);
                 }
             }

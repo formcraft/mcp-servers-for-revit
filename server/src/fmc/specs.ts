@@ -36,7 +36,8 @@ export interface FamilySpec {
   family_parameters: Array<{ name: string; level: string; rule: string }>;
   open_item: string;
 }
-export interface SpecFile { version: string; families: FamilySpec[] }
+/** pilot_set: the kit's pilot families (fmc_family_specs.PILOT_SET), the pane's default selection. */
+export interface SpecFile { version: string; pilot_set?: string[]; families: FamilySpec[] }
 
 export interface Selection { families?: string[]; role?: string; priority?: string; limit?: number }
 

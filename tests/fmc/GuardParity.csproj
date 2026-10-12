@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!-- Runs the Formcraft Browser's C# live-model lock (plugin/Fmc/GuardStatus.cs, compiled as is) against the
+         cases the server's policy.test.ts runs, so the pane and Claude cannot disagree. No Revit needed. -->
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>disable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="..\..\plugin\Fmc\GuardStatus.cs" Link="GuardStatus.cs"/>
+        <None Include="..\..\server\src\fmc\fixtures\lock_cases.json" Link="lock_cases.json" CopyToOutputDirectory="PreserveNewest"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+    </ItemGroup>
+</Project>

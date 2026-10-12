@@ -1,5 +1,6 @@
 {
  "version": "2.2",
+ "pilot_set": ["FMC_P_MechEq_WaterHeater_Instant", "FMC_P_MechEq_BoosterPumpSet", "FMC_FP_MechEq_FirePumpSet", "FMC_E_ElecFixture_PowerConnection", "FMC_I_Casework_Vanity", "FMC_FP_SpecEq_Extinguisher"],
  "families": [
   {
    "family": "FMC_TB_Panel_SiteData",

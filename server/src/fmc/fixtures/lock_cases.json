@@ -1,0 +1,29 @@
+{
+  "_comment": "Live-model lock cases shared by server/src/fmc/policy.test.ts (liveLockVerdict) and tests/fmc/GuardParityTests.cs (the Formcraft Browser's C# GuardStatus.Verdict). Both must agree on every case; add new cases here, not in one test only.",
+  "config": {
+    "library_roots": [
+      "Z:\\00_Standards\\04_Families\\_Staging",
+      "Z:\\00_Standards\\04_Families\\_ChainTests\\",
+      "Z:\\00_Standards\\06_Templates\\_Staging",
+      "Z:\\Projects\\*\\00_Library"
+    ],
+    "live_model_lock": true
+  },
+  "cases": [
+    { "name": "no active document", "doc": null, "ok": false },
+    { "name": "family document", "doc": { "title": "Family1", "path": "", "isFamily": true, "isWorkshared": false }, "ok": true },
+    { "name": "saved family outside the library", "doc": { "title": "X", "path": "C:\\Temp\\X.rfa", "isFamily": true, "isWorkshared": false }, "ok": true },
+    { "name": "new unsaved project", "doc": { "title": "Project1", "path": "", "isFamily": false, "isWorkshared": false }, "ok": true },
+    { "name": "chain test in _ChainTests", "doc": { "title": "FMC_ChainTest_P", "path": "Z:\\00_Standards\\04_Families\\_ChainTests\\FMC_ChainTest_P.rvt", "isFamily": false, "isWorkshared": false }, "ok": true },
+    { "name": "root written with a trailing backslash", "doc": { "title": "T", "path": "Z:\\00_Standards\\04_Families\\_ChainTests\\Sub\\T.rvt", "isFamily": false, "isWorkshared": false }, "ok": true },
+    { "name": "case and forward slashes do not matter", "doc": { "title": "T", "path": "z:/00_standards/04_families/_staging/P/T.rvt", "isFamily": false, "isWorkshared": false }, "ok": true },
+    { "name": "one-level wildcard", "doc": { "title": "L", "path": "Z:\\Projects\\F26001\\00_Library\\L.rvt", "isFamily": false, "isWorkshared": false }, "ok": true },
+    { "name": "wildcard is exactly one folder", "doc": { "title": "L", "path": "Z:\\Projects\\00_Library\\L.rvt", "isFamily": false, "isWorkshared": false }, "ok": false },
+    { "name": "'..' cannot escape the library", "doc": { "title": "M", "path": "Z:\\00_Standards\\04_Families\\_Staging\\..\\..\\..\\Projects\\F26001\\01_WIP\\M.rvt", "isFamily": false, "isWorkshared": false }, "ok": false },
+    { "name": "similar folder name is not inside", "doc": { "title": "M", "path": "Z:\\00_Standards\\04_Families\\_Staging_Old\\M.rvt", "isFamily": false, "isWorkshared": false }, "ok": false },
+    { "name": "workshared file in the library is still locked", "doc": { "title": "W", "path": "Z:\\00_Standards\\04_Families\\_ChainTests\\W.rvt", "isFamily": false, "isWorkshared": true }, "ok": false },
+    { "name": "live project model", "doc": { "title": "F26001-FMC-ZZ-ZZ-M3-P-0001", "path": "Z:\\Projects\\F26001\\01_WIP\\P\\F26001-FMC-ZZ-ZZ-M3-P-0001.rvt", "isFamily": false, "isWorkshared": true }, "ok": false },
+    { "name": "lock off allows a live model", "lock": false, "doc": { "title": "F26001-FMC-ZZ-ZZ-M3-P-0001", "path": "Z:\\Projects\\F26001\\01_WIP\\P\\F26001-FMC-ZZ-ZZ-M3-P-0001.rvt", "isFamily": false, "isWorkshared": true }, "ok": true },
+    { "name": "lock off with no document", "lock": false, "doc": null, "ok": true }
+  ]
+}
