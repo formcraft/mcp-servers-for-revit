@@ -20,7 +20,7 @@ state each step is in. Read `CLAUDE.md`, then `ROADMAP.md`, then this file. Upda
 
 | Step | State | Evidence or next action |
 |---|---|---|
-| Builds and kit r1 to r3 | Done | Build `85428a6` installed; kit r3 in the master kit and the Project (704 checks, 0 failed) |
+| Builds and kit r1 to r3 | Done | Add-in `85428a6`, server `3780569` (D4 name rule) installed 12 Oct; kit r3 in the master kit and the Project (704 checks, 0 failed) |
 | Decisions D1, D4, D5 | Decided 12 Oct | D4 in `policy.ts` (`7b662b3`); D1 and D5 are built in phases 2 and 4 |
 | Decisions D2, D3 | Open | Ask the BIM Manager when phase 5 starts |
 | C# lock check in CI | Waiting | Needs the gh `workflow` scope on this PC (`gh auth refresh -h github.com -s workflow`) |
