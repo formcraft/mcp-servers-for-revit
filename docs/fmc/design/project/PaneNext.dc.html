@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Formcraft Browser next</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F6FEB}a:hover{color:#1556BD}
+</style>
+</helmet>
+<div style="width: 1440px; height: 960px; box-sizing: border-box; padding: 48px 56px; background: #F6F7F9; color: #1A1D21; font-family: 'IBM Plex Sans', sans-serif; display: flex; gap: 48px">
+  <div style="width: 900px; flex-shrink: 0; background: #FFFFFF; border: 1px solid #C9CED6; border-radius: 8px; box-shadow: 0 12px 32px rgba(26,29,33,0.10); display: flex; flex-direction: column; overflow: hidden">
+    <div style="display: flex; gap: 2px; padding: 6px 12px 0; background: #EEF0F3; font-size: 12.5px; color: #5B6270">
+      <span style="padding: 5px 10px">Systems</span><span style="padding: 5px 10px">Annotate</span><span style="padding: 5px 10px">View</span>
+      <span style="padding: 5px 12px; background: #FFFFFF; color: #1F6FEB; font-weight: 600; border-radius: 6px 6px 0 0">Formcraft</span>
+    </div>
+    <div style="display: flex; flex-grow: 1; min-height: 0">
+      <div style="width: 420px; flex-shrink: 0; border-right: 1px solid #D5D9DF; display: flex; flex-direction: column; font-size: 13px">
+        <div style="height: 32px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; background: #F1F3F5; border-bottom: 1px solid #D5D9DF; font-size: 13px; font-weight: 600">
+          <span>Formcraft Browser</span><span aria-hidden="true" style="color: #8A919C; font-weight: 400">⇲ ✕</span>
+        </div>
+
+        <div style="padding: 10px 12px; border-bottom: 1px solid #E3E6EA; display: flex; flex-direction: column; gap: 7px">
+          <div style="display: flex; align-items: center; gap: 8px">
+            <span style="width: 9px; height: 9px; border-radius: 50%; background: #1E8E3E; flex-shrink: 0"></span>
+            <span style="font-weight: 600">Claude connected</span>
+            <span style="margin-left: auto; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #5B6270">port 8080 · Revit 2025</span>
+          </div>
+          <div role="group" aria-label="Active document (sample)" style="display: flex; gap: 2px; padding: 3px; background: #EEF0F3; border-radius: 6px">
+            <sc-for list="{{docBtns}}" as="d" hint-placeholder-count="3">
+              <button aria-pressed="{{d.pressed}}" onClick="{{d.pick}}" style="flex: 1; min-height: 28px; border: none; border-radius: 4px; background: {{d.bg}}; color: {{d.fg}}; font: inherit; font-size: 12px; font-weight: {{d.weight}}; cursor: pointer">{{d.label}}</button>
+            </sc-for>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 6px; background: {{stripBg}}">
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="{{lockIcon}}" fill="none" stroke="{{stripFg}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            <div style="display: flex; flex-direction: column; min-width: 0">
+              <span style="font-weight: 600; color: {{stripFg}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{docName}}</span>
+              <span style="font-size: 11.5px; color: {{stripFg}}">{{docLine}}</span>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px">
+            <span style="font-size: 12px; color: #3B424D">Claude in shared models</span>
+            <button role="switch" aria-checked="{{sharedAria}}" aria-label="Claude in shared models" onClick="{{toggleShared}}" style="margin-left: auto; width: 40px; height: 22px; padding: 0; border-radius: 11px; border: none; background: {{swBg}}; position: relative; cursor: pointer"><span style="position: absolute; top: 3px; left: {{knobLeft}}; width: 16px; height: 16px; border-radius: 50%; background: #FFFFFF"></span></button>
+            <span style="width: 24px; font-size: 11.5px; color: #4A515C">{{sharedLabel}}</span>
+          </div>
+        </div>
+
+        <div role="tablist" aria-label="Pane sections" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 10px 12px 6px; padding: 3px; background: #EEF0F3; border-radius: 6px; gap: 2px">
+          <sc-for list="{{tabs}}" as="t" hint-placeholder-count="6">
+            <button role="tab" aria-selected="{{t.selected}}" onClick="{{t.pick}}" style="min-height: 30px; border: none; border-radius: 4px; background: {{t.bg}}; color: {{t.fg}}; font: inherit; font-size: 12.5px; font-weight: {{t.weight}}; cursor: pointer">{{t.label}}</button>
+          </sc-for>
+        </div>
+
+        <div style="flex-grow: 1; min-height: 0; overflow: auto; padding: 2px 12px 8px">
+          <div style="font-size: 12px; color: #4A515C; margin: 4px 0 6px">{{heading}}</div>
+          <div style="display: flex; flex-direction: column">
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="6">
+              <div style="display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; min-height: 46px; padding: 3px 4px; border-bottom: 1px solid #EEF0F3">
+                <span style="display: flex; flex-direction: column; min-width: 0">
+                  <span style="font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.title}}</span>
+                  <span style="font-size: 11.5px; color: #5B6270; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.meta}}</span>
+                </span>
+                <span style="font-size: 11.5px; padding: 2px 8px; border-radius: 10px; background: {{r.chipBg}}; color: {{r.chipFg}}; white-space: nowrap">{{r.status}}</span>
+              </div>
+            </sc-for>
+          </div>
+          <sc-if value="{{hasNote}}" hint-placeholder-val="{{true}}">
+            <div style="margin-top: 6px; padding: 5px 8px; border-radius: 4px; background: {{noteBg}}; color: {{noteFg}}; font-size: 11.5px; line-height: 1.4">{{note}}</div>
+          </sc-if>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 4px; align-items: center; padding: 4px 8px; border-top: 1px solid #E3E6EA; background: #F8F9FA">
+          <sc-for list="{{actions}}" as="a" hint-placeholder-count="3">
+            <button aria-disabled="{{a.ariaDisabled}}" style="min-height: 24px; padding: 1px 8px; font: inherit; font-size: 11.5px; font-weight: {{a.weight}}; border: 1px solid {{a.border}}; background: {{a.bg}}; color: {{a.fg}}; border-radius: 3px; cursor: {{a.cursor}}">{{a.label}}</button>
+          </sc-for>
+          <span style="margin-left: auto; font-size: 11.5px; color: #5B6270">{{footerNote}}</span>
+        </div>
+      </div>
+
+      <div style="flex-grow: 1; background: #FBFBFC; position: relative; display: flex; align-items: center; justify-content: center">
+        <svg width="400" height="320" viewBox="0 0 400 320" aria-hidden="true">
+          <rect x="40" y="30" width="320" height="240" fill="#FFFFFF" stroke="#9AA1AC" stroke-width="2"></rect>
+          <path d="M40 130 H230 M230 30 V270 M230 190 H360" fill="none" stroke="#9AA1AC" stroke-width="2"></path>
+          <rect x="30" y="20" width="340" height="260" fill="none" stroke="#1F6FEB" stroke-width="1.5" stroke-dasharray="6 5"></rect>
+          <path d="M20 300 H60 M20 300 V260" fill="none" stroke="#1A1D21" stroke-width="2"></path>
+          <circle cx="20" cy="300" r="4" fill="#1A1D21"></circle>
+        </svg>
+        <div style="position: absolute; left: 16px; bottom: 12px; font-size: 12.5px; color: #8A919C">{{viewCaption}}</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex: 1; display: flex; flex-direction: column; gap: 18px; padding-top: 4px">
+    <div>
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; color: #4A515C">Formcraft Browser · next</div>
+      <h2 style="margin: 10px 0 0; font-size: 36px; line-height: 1.1; font-weight: 700; letter-spacing: -1px">Setup, QA, links and sync beside the model</h2>
+    </div>
+    <div style="border-top: 3px solid #1F6FEB; padding-top: 10px"><div style="font-size: 18px; font-weight: 600">The active file decides what is open</div><div style="margin-top: 4px; font-size: 15px; line-height: 1.5; color: #3B424D">Switch between template, new project and live project. On a shared model, setup opens only while your "Claude in shared models" toggle is on; QA and audits are always open.</div></div>
+    <div style="border-top: 3px solid #1F6FEB; padding-top: 10px"><div style="font-size: 18px; font-weight: 600">Setup as a checklist</div><div style="margin-top: 4px; font-size: 15px; line-height: 1.5; color: #3B424D">Parameters, keynotes, electrical settings, sheets and links in order, each with its dry run, ending with a QA report.</div></div>
+    <div style="border-top: 3px solid #1F6FEB; padding-top: 10px"><div style="font-size: 18px; font-weight: 600">QA on any model</div><div style="margin-top: 4px; font-size: 15px; line-height: 1.5; color: #3B424D">One run checks naming, bindings, keynotes, links, health and the IDS base, and saves the report to FMC_Reports.</div></div>
+    <div style="border-top: 3px solid #1F6FEB; padding-top: 10px"><div style="font-size: 18px; font-weight: 600">Families and Activity carry over</div><div style="margin-top: 4px; font-size: 15px; line-height: 1.5; color: #3B424D">The family builder and the log work as they do in today's pane.</div></div>
+    <div style="margin-top: auto; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; line-height: 1.5; color: #5B6270">Planned design. Files, counts and log rows are sample data.</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { tab: 'setup', doc: 'new', shared: false };
+}
+renderVals() {
+const C = { ok: ['#E6F4EA', '#1E6B34'], ready: ['#E8F0FE', '#1556BD'], warn: ['#FFF4E0', '#6B4100'], bad: ['#FDECEA', '#A50E0E'], off: ['#EEF0F3', '#4A515C'] };
+const R = (title, meta, status, kind) => ({ title, meta, status, chipBg: C[kind][0], chipFg: C[kind][1] });
+const tab = this.state.tab, doc = this.state.doc;
+const live = doc === 'live', tpl = doc === 'template';
+
+let docInfo = {
+template: { name: 'FMC_E_Template_v2.2.rte', line: 'Template in 06_Templates\\_Staging: setup tools open', open: true },
+new: { name: 'F26001-FMC-ZZ-ZZ-M3-E-0001.rvt', line: 'New project, not yet shared: setup tools open', open: true },
+live: { name: 'F26001-FMC-ZZ-ZZ-M3-A-0001.rvt', line: 'Live project, workshared: Claude reads and reports', open: false }
+}[doc];
+const shared = this.state.shared;
+if (live && shared) docInfo = Object.assign({}, docInfo, { line: 'Live project, workshared: setup tools open; you sync with central', open: true });
+const docBtns = [['template', 'Template'], ['new', 'New project'], ['live', 'Live project']].map(([id, label]) => ({
+label, pressed: id === doc ? 'true' : 'false', bg: id === doc ? '#FFFFFF' : 'transparent', fg: id === doc ? '#1A1D21' : '#4A515C',
+weight: id === doc ? '600' : '400', pick: () => this.setState({ doc: id })
+}));
+const tabs = [['setup', 'Setup'], ['qa', 'QA'], ['links', 'Links'], ['sync', 'Sync'], ['families', 'Families'], ['activity', 'Activity']].map(([id, label]) => ({
+label, selected: id === tab ? 'true' : 'false', bg: id === tab ? '#FFFFFF' : 'transparent', fg: id === tab ? '#1A1D21' : '#4A515C',
+weight: id === tab ? '600' : '400', pick: () => this.setState({ tab: id })
+}));
+
+const btn = (label, enabled, primary) => ({
+label, ariaDisabled: enabled ? 'false' : 'true', cursor: enabled ? 'pointer' : 'not-allowed',
+weight: primary ? '600' : '400',
+bg: !enabled ? '#F1F3F5' : primary ? '#1F6FEB' : '#FFFFFF',
+fg: !enabled ? '#8A919C' : primary ? '#FFFFFF' : '#1A1D21',
+border: !enabled ? '#DDE1E6' : primary ? '#1F6FEB' : '#C9CED6'
+});
+const setupOpen = docInfo.open;
+let heading = '', rows = [], note = '', noteKind = 'warn', actions = [], footerNote = '';
+
+if (tab === 'setup') {
+heading = (tpl ? 'Template build for ' : 'Project steps for ') + docInfo.name;
+const steps = tpl ? [
+['Bind shared parameters', 'Dictionary to categories, Type or Instance'],
+['Keynote file', '00_Standards\\02_Keynotes\\FMC_Keynotes.txt'],
+['Filters and view templates', 'From FMC_Revit_Kit.xlsx'],
+['Schedules', 'Role schedules from the kit'],
+['Sheets', 'Role E sheets on the FMC title block'],
+['Electrical settings', 'Voltages and distribution systems']
+] : [
+['Project folder', 'Tree built in the folder you picked'],
+['Discipline models', 'From role templates, container names'],
+['Project data', 'Project Information and title blocks'],
+['Link models', 'Shared coordinates, pinned'],
+['Project families', 'F26001_… batch in 01_WIP (D4)'],
+['QA report', 'Saved to FMC_Reports']
+];
+const D = ['Done', 'ok'], Rd = ['Ready', 'ready'], Ro = ['Report only', 'off'];
+const st = tpl ? [D, D, Rd, Rd, Rd, Rd]
+: live ? (shared ? [D, D, ['Update', 'ready'], Rd, Rd, Rd] : [Ro, Ro, Ro, Ro, Ro, Rd])
+: [D, D, D, Rd, Rd, Rd];
+rows = steps.map(([t, m], i) => R(t, m, st[i][0], st[i][1]));
+note = !setupOpen ? 'Shared model: setup tools are closed. Turn on "Claude in shared models" to open them.'
+: live ? 'Setup tools are open in a shared model. Claude never syncs: you synchronise with central.'
+: 'Each step shows its dry run before it changes anything.';
+noteKind = live ? 'warn' : 'ready';
+actions = [btn(tpl ? 'Build template (dry run)' : 'Run setup (dry run)', setupOpen, true), btn('One step…', setupOpen, false)];
+footerNote = !setupOpen ? 'Read only' : tpl ? '4 steps left' : '3 steps left';
+} else if (tab === 'qa') {
+heading = 'Last run 10:52 on ' + docInfo.name;
+rows = [
+R('Naming: views', 'Names off the Manual pattern', '12', 'warn'),
+R('Naming: levels', '"Level 4" is not a standard level name', '1', 'warn'),
+R('Naming: sheets', 'Checked against FMC_Sheet_Register', 'Pass', 'ok'),
+R('Parameter bindings', 'Group 16 asset parameters missing', '3', 'warn'),
+R('Keynotes', 'Type keys not in FMC_Keynotes.txt', '2', 'warn'),
+R('Links', 'Linked models not pinned', '1', 'warn'),
+R('Model health', 'Revit warnings in the model', '48', 'off'),
+R('IDS pre-check', 'FMC_Design_Base.ids', 'Pass', 'ok')
+];
+note = 'QA only reads. People decide what to fix.';
+noteKind = 'ready';
+actions = [btn('Run QA', true, true), btn('Open report', true, false)];
+footerNote = 'Works on every model';
+} else if (tab === 'links') {
+heading = tpl ? 'Linked models' : 'Linked models in ' + docInfo.name;
+rows = tpl ? [] : live ? [
+R('F26001-FMC-ZZ-ZZ-M3-S-0001.rvt', 'Shared coordinates · pinned', 'OK', 'ok'),
+R('F26001-FMC-ZZ-ZZ-M3-M-0001.rvt', 'Shared coordinates · not pinned', 'Not pinned', 'warn'),
+R('F26001-FMC-ZZ-ZZ-M3-E-0001.rvt', 'Origin to origin', 'Not shared', 'bad')
+] : [
+R('F26001-FMC-ZZ-ZZ-M3-A-0001.rvt', 'Shared coordinates · pinned', 'Linked', 'ok'),
+R('F26001-FMC-ZZ-ZZ-M3-S-0001.rvt', 'In 02_Shared, ready to link', 'Ready', 'ready')
+];
+note = tpl ? 'Templates hold no links. Open a new project to link models.' : 'Acquire and publish coordinates stay with the BIM Coordinator (Manual 8.5).';
+noteKind = tpl ? 'off' : 'warn';
+actions = [btn('Link from 02_Shared…', setupOpen && !tpl, true), btn('Pin all', setupOpen && !tpl, false), btn('Audit', !tpl, false)];
+footerNote = !setupOpen ? 'Audit only' : '';
+} else if (tab === 'sync') {
+heading = 'Kit data against ' + docInfo.name;
+rows = [
+R('Keynote file', 'FMC_Keynotes.txt · loaded', 'Loaded', 'ok'),
+R('Type keynotes not in the file', 'Codes to check with the kit owner', '2', 'warn'),
+R('Master data differences', 'Type values that differ from FMC_Master_Data', '14', 'warn'),
+R('Last sync', 'From FMC_Master_Data.xlsx', tpl ? 'Today' : 'Never', tpl ? 'ok' : 'off')
+];
+note = !setupOpen ? 'Shared model: preview only.' : 'Apply shows the type-by-type changes in a dry run first.';
+noteKind = !setupOpen ? 'warn' : 'ready';
+actions = [btn('Preview', true, false), btn('Apply (dry run)', setupOpen, true)];
+footerNote = '';
+} else if (tab === 'families') {
+heading = 'Pilot set · 6 families';
+rows = [
+R('FMC_P_MechEq_WaterHeater_Instant', 'P · 3 connectors · 9 parameters', 'Ready', 'ready'),
+R('FMC_FP_MechEq_FirePumpSet', 'FP · 4 connectors · 9 parameters', '1 note', 'warn'),
+R('FMC_FP_SpecEq_Extinguisher', 'FP · no connectors · 9 parameters', 'Load tested', 'ok')
+];
+note = 'Unchanged. Families save to _Staging; the load test runs in FMC_ChainTest_<Role>.rvt.';
+noteKind = 'off';
+actions = [btn('Plan', true, false), btn('Build (dry run)', true, true), btn('Load test', false, false)];
+footerNote = 'Library files only';
+} else {
+heading = 'From FMC_MCP_FileLog.csv';
+rows = [
+R('QA', '10:52 · F26001-FMC-ZZ-ZZ-M3-A-0001.rvt · report saved', 'Done', 'ok'),
+R('Setup (dry run)', '10:47 · 6 steps · F26001-FMC-ZZ-ZZ-M3-E-0001.rvt', 'Plan', 'ready'),
+R('Bind parameters', '10:46 · F26001-FMC-ZZ-ZZ-M3-E-0001.rvt', 'Done', 'ok'),
+R('Link', '10:40 · on a live project', 'Refused', 'bad'),
+R('Create from template', '10:31 · FMC_E_Template_v2.2.rte', 'Done', 'ok')
+];
+note = '';
+actions = [btn('Open log', true, false)];
+footerNote = 'Service on · port 8080';
+}
+
+return {
+docBtns, tabs, heading, rows, actions, footerNote,
+docName: docInfo.name, docLine: docInfo.line,
+stripBg: !setupOpen ? '#FDECEA' : live ? '#FFF4E0' : '#E6F4EA', stripFg: !setupOpen ? '#A50E0E' : live ? '#6B4100' : '#1E6B34',
+sharedAria: shared ? 'true' : 'false', sharedLabel: shared ? 'On' : 'Off', swBg: shared ? '#1F6FEB' : '#6B7280', knobLeft: shared ? '21px' : '3px',
+toggleShared: () => this.setState({ shared: !shared }),
+lockIcon: setupOpen ? 'M6 11h12v9H6z M8.5 11V8a3.5 3.5 0 0 1 6.8-1.2' : 'M6 11h12v9H6z M8.5 11V8a3.5 3.5 0 0 1 7 0v3',
+hasNote: note !== '', note, noteBg: C[noteKind][0], noteFg: C[noteKind][1],
+viewCaption: 'Level 1 plan · ' + docInfo.name
+};
+}
+}
+</script>
+</body>
+</html>

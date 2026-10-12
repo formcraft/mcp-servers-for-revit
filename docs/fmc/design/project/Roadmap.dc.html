@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Roadmap to an all-round plugin</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F6FEB}a:hover{color:#1556BD}
+</style>
+</helmet>
+<div style="width: 1440px; height: 810px; box-sizing: border-box; padding: 36px 56px; background: #F6F7F9; color: #1A1D21; font-family: 'IBM Plex Sans', sans-serif; display: flex; flex-direction: column; gap: 18px">
+  <div>
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; color: #4A515C">Roadmap</div>
+    <h2 style="margin: 8px 0 0; font-size: 36px; line-height: 1.08; font-weight: 700; letter-spacing: -1px">Start every project compliant: the library first, then one form</h2>
+  </div>
+
+  <div style="background: #FFFFFF; border: 1px solid #DDE1E6; border-radius: 8px; overflow: hidden; font-size: 13px; line-height: 1.4">
+    <div style="display: grid; grid-template-columns: 210px 92px minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) 62px; gap: 14px; align-items: center; padding: 8px 14px; background: #EEF0F3; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; letter-spacing: 1px; text-transform: uppercase; color: #4A515C">
+      <span>Capability</span><span>Status</span><span>Through Claude today</span><span>In the kit, not yet in Claude</span><span>Planned</span><span>Phase</span>
+    </div>
+    <sc-for list="{{rows}}" as="r" hint-placeholder-count="10">
+      <div style="display: grid; grid-template-columns: 210px 92px minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) 62px; gap: 14px; align-items: center; min-height: 38px; padding: 3px 14px; border-top: 1px solid #EEF0F3">
+        <span style="font-size: 14px; font-weight: 600">{{r.cap}}</span>
+        <span><span style="display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11.5px; font-weight: 500; background: {{r.chipBg}}; color: {{r.chipFg}}">{{r.status}}</span></span>
+        <span style="color: {{r.todayFg}}">{{r.today}}</span>
+        <span style="color: #3B424D">{{r.kit}}</span>
+        <span style="color: #1A1D21">{{r.planned}}</span>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: #1556BD">{{r.phase}}</span>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px">
+    <sc-for list="{{phases}}" as="p" hint-placeholder-count="7">
+      <div style="background: {{p.bg}}; border: 1px solid {{p.border}}; border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: {{p.tagFg}}">{{p.tag}}</div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 500; color: {{p.fg}}">{{p.tool}}</div>
+        <div style="font-size: 12.5px; line-height: 1.4; color: {{p.body}}">{{p.text}}</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="margin-top: -8px; font-size: 12.5px; color: #5B6270">Size: S small · M medium · L large. Order agreed 12 Oct 2026: the compliant library first, then project start. QA can move earlier if wanted on current jobs.</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":810}}'>
+class Component extends DCLogic {
+renderVals() {
+const K = { Works: ['#E6F4EA', '#1E6B34'], Partial: ['#E8F0FE', '#1556BD'], 'In kit': ['#FFF4E0', '#6B4100'], New: ['#EEF0F3', '#1A1D21'] };
+const row = (cap, status, today, kit, planned, phase) => ({
+cap, status, today, kit, planned, phase, chipBg: K[status][0], chipFg: K[status][1],
+todayFg: today === '—' ? '#8A919C' : '#1A1D21'
+});
+const rows = [
+row('Templates (the library)', 'New', '—', '06_Templates: README only (13 planned) · FMC_Revit_Kit.xlsx data', 'fmc_template: Base + 12 role templates, compliant', '2'),
+row('Shared parameter binding', 'Partial', 'Into families, during fmc_family build', 'FMC_BindSharedParameters (Dynamo)', 'Bound once in each template; projects inherit', '2'),
+row('View templates, filters, schedules, sheets', 'In kit', '—', 'FMC_Revit_Kit.xlsx · 2_CreateSheets (pyRevit)', 'fmc_template, from the kit sheets', '2'),
+row('Families and symbols', 'Partial', 'Data shells: box, connectors, parameters', 'Register · specs · 107 symbols', 'JSON recipes: geometry, symbols, inject, project batches', '3'),
+row('Project start', 'Partial', 'create_from_template with the name check', 'fmc_new_project.py (folder tree)', 'One form: your folder (D5), models, project data, links, families', '4'),
+row('Model linking', 'New', '—', '— (5_LinkedLoads only reads loads)', 'fmc_link: shared coordinates, pin, audit', '4'),
+row('Naming conventions', 'Partial', 'Models, templates, library and project families (D4)', 'fmc_name_check.py (files on disk)', 'fmc_qa naming: views, sheets, levels, worksets, types', '5'),
+row('QA and model health', 'In kit', 'Model statistics (read-only)', 'FMC_ModelHealth · 4_ProjectMetrics · IDS files', 'fmc_qa: one report against the Manual', '5'),
+row('Keynote and master data sync', 'In kit', '—', 'FMC_Keynotes.txt · FMC_SyncMasterData (Dynamo)', 'fmc_sync preview and apply', '6'),
+row('Safety', 'Works', 'Live-model lock · dry run · nothing deleted · log', '—', 'Setup class + your "Claude in shared models" toggle (D1)', 'all')
+];
+const ph = (tag, tool, text) => ({ tag, tool, text, bg: '#FFFFFF', border: '#DDE1E6', fg: '#1556BD', body: '#3B424D', tagFg: '#5B6270' });
+const phases = [
+Object.assign(ph('NOW', 'Pilot run', 'Six pilot families: plan, build, load test.'), { bg: '#1A1D21', border: '#1A1D21', fg: '#FFFFFF', body: '#D5D9DF', tagFg: '#B9C0CA' }),
+ph('1 · S', 'Kit JSON', 'Kit sheets exported for the tools to read.'),
+Object.assign(ph('2 · L', 'fmc_template', 'Base and 12 role templates, compliant.'), { bg: '#1F6FEB', border: '#1F6FEB', fg: '#FFFFFF', body: '#E8F0FE', tagFg: '#D2E2FD' }),
+ph('3 · L', 'Family recipes', 'JSON to family, inject, project batches.'),
+ph('4 · M', 'Project start', 'One form from an empty folder.'),
+ph('5 · M', 'fmc_qa', 'One report against the Manual.'),
+ph('6 · S', 'fmc_sync', 'Master data and keynotes into types.')
+];
+return { rows, phases };
+}
+}
+</script>
+</body>
+</html>

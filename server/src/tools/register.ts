@@ -21,8 +21,20 @@ export async function registerTools(server: McpServer) {
       file !== "register.js"
   );
 
+  // Formcraft tool profile: hide upstream tools Formcraft does not use, so their descriptions do not
+  // load into every conversation. FMC_TOOL_PROFILE=full restores every tool.
+  const profile = (process.env.FMC_TOOL_PROFILE || "fmc").toLowerCase();
+  const hiddenInFmcProfile = new Set([
+    "say_hello", "color_elements", "tag_all_walls", "tag_all_rooms", "store_project_data", "store_room_data",
+    "query_stored_data", "export_room_data", "search_modules", "use_module",
+  ]);
+
   // 动态导入并注册每个工具
   for (const file of toolFiles) {
+    if (profile === "fmc" && hiddenInFmcProfile.has(file.replace(/\.(ts|js)$/, ""))) {
+      console.error(`FMC profile: skipped ${file}`);
+      continue;
+    }
     try {
       // 构建导入路径
       const importPath = `./${file.replace(/\.(ts|js)$/, ".js")}`;

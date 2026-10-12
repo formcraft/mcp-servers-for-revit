@@ -1,0 +1,146 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-10-12T06:10:00Z"
+ },
+ "title": "Formcraft Revit MCP — Design Canvas",
+ "launch": {
+  "view": "canvas"
+ },
+ "pages": [],
+ "boards": {
+  "Main.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 810,
+   "title": "Cover: Claude in Revit"
+  },
+  "Ribbon.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 1440,
+   "h": 810,
+   "title": "Ribbon: Formcraft Browser toggle"
+  },
+  "McpPane.dc.html": {
+   "x": 0,
+   "y": 1230,
+   "w": 1440,
+   "h": 960,
+   "title": "Formcraft Browser pane",
+   "is_interactive": true
+  },
+  "McpStates.dc.html": {
+   "x": 1520,
+   "y": 1230,
+   "w": 1440,
+   "h": 960,
+   "title": "Pane states"
+  },
+  "Flow.dc.html": {
+   "x": 0,
+   "y": 2610,
+   "w": 1440,
+   "h": 810,
+   "title": "Family builder flow"
+  },
+  "Tools.dc.html": {
+   "x": 1520,
+   "y": 2610,
+   "w": 1440,
+   "h": 810,
+   "title": "Tools Claude sees"
+  },
+  "Roadmap.dc.html": {
+   "x": 0,
+   "y": 3840,
+   "w": 1440,
+   "h": 810,
+   "title": "Roadmap: today, kit, planned"
+  },
+  "NewTools.dc.html": {
+   "x": 1520,
+   "y": 3840,
+   "w": 1440,
+   "h": 810,
+   "title": "Five new tools"
+  },
+  "PaneNext.dc.html": {
+   "x": 0,
+   "y": 4770,
+   "w": 1440,
+   "h": 960,
+   "title": "Formcraft Browser: next pane",
+   "is_interactive": true
+  },
+  "SetupFlow.dc.html": {
+   "x": 1520,
+   "y": 4770,
+   "w": 1440,
+   "h": 810,
+   "title": "New project setup flow"
+  },
+  "ProjectStart.dc.html": {
+   "x": 0,
+   "y": 5850,
+   "w": 1440,
+   "h": 960,
+   "title": "Project start form",
+   "is_interactive": true
+  },
+  "FamilyRecipes.dc.html": {
+   "x": 1520,
+   "y": 5850,
+   "w": 1440,
+   "h": 810,
+   "title": "Family recipes (JSON)"
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "Ribbon.dc.html",
+  "McpPane.dc.html",
+  "McpStates.dc.html",
+  "Flow.dc.html",
+  "Tools.dc.html",
+  "Roadmap.dc.html",
+  "NewTools.dc.html",
+  "PaneNext.dc.html",
+  "SetupFlow.dc.html",
+  "ProjectStart.dc.html",
+  "FamilyRecipes.dc.html"
+ ],
+ "notes": {
+  "overview": {
+   "kind": "title1",
+   "x": 0,
+   "y": -300,
+   "text": "Formcraft Revit MCP",
+   "maxW": 2960
+  },
+  "pane": {
+   "kind": "title1",
+   "x": 0,
+   "y": 930,
+   "text": "Formcraft Browser: the docked pane",
+   "maxW": 2960
+  },
+  "build": {
+   "kind": "title1",
+   "x": 0,
+   "y": 2310,
+   "text": "How the features work",
+   "maxW": 2960
+  },
+  "next": {
+   "kind": "title1",
+   "x": 0,
+   "y": 3540,
+   "text": "All-round plugin: what we build next",
+   "maxW": 2960
+  }
+ },
+ "designSystems": []
+}

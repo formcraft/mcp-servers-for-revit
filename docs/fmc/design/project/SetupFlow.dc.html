@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>New project setup flow</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F6FEB}a:hover{color:#1556BD}
+</style>
+</helmet>
+<div style="width: 1440px; height: 810px; box-sizing: border-box; padding: 40px 56px; background: #F6F7F9; color: #1A1D21; font-family: 'IBM Plex Sans', sans-serif; display: flex; flex-direction: column; gap: 26px">
+  <div>
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; color: #4A515C">New project setup</div>
+    <h2 style="margin: 8px 0 0; font-size: 36px; line-height: 1.08; font-weight: 700; letter-spacing: -1px">One form from an empty folder to a compliant project</h2>
+  </div>
+
+  <div style="display: flex; align-items: stretch">
+    <sc-for list="{{steps}}" as="s" hint-placeholder-count="7">
+      <div style="display: flex; align-items: center">
+        <div style="width: 164px; min-height: 232px; box-sizing: border-box; padding: 12px; background: {{s.bg}}; border: 2px solid {{s.border}}; border-radius: 10px; display: flex; flex-direction: column; gap: 7px">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: {{s.tagFg}}">{{s.tag}}</div>
+          <div style="font-size: 17px; font-weight: 700; color: {{s.fg}}">{{s.title}}</div>
+          <div style="font-size: 13px; line-height: 1.45; color: {{s.body}}">{{s.text}}</div>
+          <div style="margin-top: auto; font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.4; color: {{s.tagFg}}">{{s.where}}</div>
+        </div>
+        <sc-if value="{{s.arrow}}" hint-placeholder-val="{{true}}">
+          <svg width="26" height="20" viewBox="0 0 26 20" aria-hidden="true"><path d="M2 10 H22 M16 4 L22 10 L16 16" fill="none" stroke="#8A919C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </sc-if>
+      </div>
+    </sc-for>
+  </div>
+  <div style="margin-top: -12px; font-size: 14px; color: #4A515C">Bindings, keynotes, view templates and sheets come in with each role template, so the project starts compliant. Each step shows its dry run first; stop after any step.</div>
+
+  <div>
+    <div style="font-size: 20px; font-weight: 700">Three lock classes decide where each tool runs</div>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-top: 12px">
+      <sc-for list="{{classes}}" as="c" hint-placeholder-count="3">
+        <div style="background: #FFFFFF; border: 1px solid #DDE1E6; border-top: 4px solid {{c.color}}; border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 6px">
+          <div style="display: flex; align-items: center; gap: 8px">
+            <span style="font-size: 17px; font-weight: 700">{{c.title}}</span>
+            <span style="margin-left: auto; font-size: 11.5px; padding: 2px 8px; border-radius: 10px; background: {{c.chipBg}}; color: {{c.chipFg}}">{{c.chip}}</span>
+          </div>
+          <div style="font-size: 14px; line-height: 1.45; color: #1A1D21">{{c.where}}</div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; line-height: 1.5; color: #4A515C">{{c.tools}}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":810}}'>
+class Component extends DCLogic {
+renderVals() {
+const S = (tag, title, text, where) => ({ tag, title, text, where, bg: '#FFFFFF', border: '#C9CED6', fg: '#1A1D21', body: '#3B424D', tagFg: '#5B6270', arrow: true });
+const steps = [
+S('1 · FOLDER', 'Project folder', 'You create the folder and pick it; the project tree is built inside (D5).', 'fmc_project start'),
+S('2 · MODELS', 'Discipline models', 'One per role from its compliant template; container names checked.', 'fmc_file create_from_template'),
+S('3 · DETAILS', 'Project data', 'Number, name, client, address and stage into Project Information and title blocks.', 'fmc_project project_info'),
+S('4 · LINKS', 'Links', 'Discipline models linked by shared coordinates and pinned.', 'fmc_link link'),
+S('5 · FAMILIES', 'Project families', 'Recipes and size tables become F26001_… families in 01_WIP (D4).', 'fmc_family batch'),
+S('6 · QA', 'Report', 'Naming, bindings, keynotes, links and sheets checked; report saved.', 'fmc_qa → FMC_Reports'),
+Object.assign(S('GATE · PEOPLE', 'Coordinator', 'Reviews the report, enables worksharing, sets the central location and coordinates.', 'Manual 7.2 · 8.5'),
+{ bg: '#1A1D21', border: '#1A1D21', fg: '#FFFFFF', body: '#D5D9DF', tagFg: '#B9C0CA', arrow: false })
+];
+const classes = [
+{ title: 'Read', color: '#1E8E3E', chip: 'Every model', chipBg: '#E6F4EA', chipFg: '#1E6B34', where: 'Live projects included. Claude reads, checks and reports; nothing changes.', tools: 'fmc_qa · fmc_link audit · fmc_sync preview · statistics' },
+{ title: 'Setup', color: '#1F6FEB', chip: 'Shared models: your toggle', chipBg: '#FFF4E0', chipFg: '#6B4100', where: 'Templates, new projects and families. Shared or live models only while "Claude in shared models" is on (D1).', tools: 'fmc_template · fmc_project · fmc_sync apply · fmc_link link, pin · fmc_family inject' },
+{ title: 'Model', color: '#C77400', chip: 'Library files only', chipBg: '#EEF0F3', chipFg: '#3B424D', where: 'Families, _Staging and _ChainTests. Locked on live models even with the toggle on.', tools: 'fmc_family build · create_* · operate_element · delete_element' }
+];
+return { steps, classes };
+}
+}
+</script>
+</body>
+</html>
