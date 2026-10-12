@@ -48,7 +48,10 @@ lives in `Z:\00_Standards\` and in the claude.ai Project "REVIT MCP".
   rules too. Rows in `FMC_MCP_FileLog.csv` may come from the user's clicks in the pane as well as from Claude.
 
 ## Developing this fork (Claude Code)
-- **Start with `docs/fmc/ROADMAP.md`.** It is the agreed plan for the all-round plugin: phase order, the pattern every
+- **Run book: `docs/fmc/EXECUTION.md`** (paths on the pilot PC, the status table, the loop for every step, the
+  pilot and phase 1-2 task lists). Commands: `/fmc-start` (pull, builds, status), `/fmc-pilot`, `/fmc-step [step]`
+  (plan, then wait for a yes), `/fmc-package` (kit update rN). Update the status table whenever a step moves.
+- **Then `docs/fmc/ROADMAP.md`.** It is the agreed plan for the all-round plugin: phase order, the pattern every
   tool follows (server check → dry run → one Revit handler → log → pane CLI), the Setup lock class, and the
   decisions (D1 toggle, D4 project family names and D5 project folder decided; D2 and D3 open). Build phases in
   order; don't start a phase before the previous one ran on the user's PC.
