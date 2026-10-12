@@ -28,7 +28,7 @@ namespace revit_mcp_plugin.UI
             ["TextBody"] = ("#3B424D", "#CDD2D9"),
             ["TextSecondary"] = ("#4A515C", "#B7BDC6"),
             ["TextMeta"] = ("#5B6270", "#A2A9B4"),
-            ["TextDisabled"] = ("#6B7280", "#7F8792"),
+            ["TextDisabled"] = ("#8A919C", "#7F8792"),   // HANDOFF_NEXT: disabled button text
             ["IconMuted"] = ("#8A919C", "#7F8792"),
             ["Border"] = ("#C9CED6", "#4A525E"),
             ["BorderPane"] = ("#D5D9DF", "#404752"),

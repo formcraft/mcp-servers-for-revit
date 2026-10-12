@@ -9,7 +9,7 @@
  *   node build/fmc/cli.js <command>        JSON arguments on stdin (none for specs and probe)
  *
  *   fmc_file | fmc_family   run the tool with the same argument schema and defaults; prints the tool's JSON reply
- *   specs                   the families in FMC_Family_Specs.json, for the pane's family picker
+ *   specs                   the families and the pilot set in FMC_Family_Specs.json, for the pane's family picker
  *   probe                   connects to Revit on port 8080 and reads the open documents (tests the whole chain)
  *
  * Exit code 0: done. 1: refused or failed (the JSON says why). 2: bad usage.
@@ -53,6 +53,7 @@ function specs() {
   print({
     specs_path: config.specs_path,
     version: file.version,
+    pilot_set: file.pilot_set ?? [],
     families: file.families.map((f) => ({
       family: f.family, role: f.role, priority: f.priority, category: f.category,
       connectors: (f.connectors ?? []).filter((c) => ["Electrical", "Piping", "Duct", "ELV"].includes(c.domain)).length,

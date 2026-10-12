@@ -29,6 +29,8 @@ namespace revit_mcp_plugin.UI
         private DocState Active => _docs.FirstOrDefault(d => d.IsActive);
         private readonly ObservableCollection<FamilyRow> _families = new ObservableCollection<FamilyRow>();
         private List<SpecInfo> _specs;
+        private List<string> _pilot = new List<string>();
+        private bool _usePilotDefault;
         private string _selectionLabel;
         private string _busy;
         private DateTime _logStamp = DateTime.MinValue;
@@ -43,9 +45,10 @@ namespace revit_mcp_plugin.UI
             _guard = GuardStatus.Load();
             FamilyList.ItemsSource = _families;
 
+            // A saved selection, or the kit's pilot set (read from FMC_Family_Specs.json when the pane is first shown).
             var (label, names) = BrowserSettings.Selection;
-            SetSelection(names ?? FamilyPickerWindow.PilotSet.ToList(),
-                label ?? $"Pilot set · {FamilyPickerWindow.PilotSet.Length} families");
+            _usePilotDefault = names == null;
+            SetSelection(names ?? new List<string>(), label ?? "Pilot set");
 
             ShowGuard();
             ShowReadiness();
@@ -58,9 +61,16 @@ namespace revit_mcp_plugin.UI
             Refresh();
 
             // First plan when the pane is first shown, not at Revit start-up.
-            IsVisibleChanged += (s, e) =>
+            IsVisibleChanged += async (s, e) =>
             {
-                if (IsVisible && !_plannedOnce && ServerCli.Ready) { _plannedOnce = true; _ = PlanAsync(quiet: true); }
+                if (!IsVisible || _plannedOnce || !ServerCli.Ready) return;
+                _plannedOnce = true;
+                if (_usePilotDefault && await LoadSpecsAsync() && _pilot.Count > 0)
+                {
+                    _usePilotDefault = false;
+                    SetSelection(_pilot, FamilyPickerWindow.PilotLabel(_pilot.Count));
+                }
+                await PlanAsync(quiet: true);
             };
         }
 
@@ -344,23 +354,35 @@ namespace revit_mcp_plugin.UI
 
         private async void ChangeSelection_Click(object sender, RoutedEventArgs e)
         {
-            if (_specs == null)
-            {
-                SetBusy("Reading the family specs…");
-                CliResult r = await ServerCli.RunAsync("specs");
-                SetBusy(null);
-                if (!r.Ok) { Messages(FamilyMessages, ("bad", "Can't read the family specs: " + string.Join(" ", r.Reasons()))); return; }
-                _specs = ((JArray)r.Body["families"]).Select(f => new SpecInfo
-                {
-                    Family = f.Value<string>("family"), Role = f.Value<string>("role"), Priority = f.Value<string>("priority"),
-                    Category = f.Value<string>("category"), Connectors = f.Value<int>("connectors"), Parameters = f.Value<int>("parameters"),
-                }).ToList();
-            }
-            var picker = new FamilyPickerWindow(_specs, _families.Select(f => f.Name));
+            if (!await LoadSpecsAsync()) return;
+            var picker = new FamilyPickerWindow(_specs, _pilot, _families.Select(f => f.Name));
             if (picker.ShowDialog() != true) return;
             BrowserSettings.Selection = (picker.Label, picker.Names);
             SetSelection(picker.Names, picker.Label);
             await PlanAsync(quiet: true);
+        }
+
+        /// <summary>The families and the pilot set from the kit, through the server (the same specs file Claude reads).</summary>
+        private async Task<bool> LoadSpecsAsync()
+        {
+            if (_specs != null) return true;
+            SetBusy("Reading the family specs…");
+            CliResult r = await ServerCli.RunAsync("specs");
+            SetBusy(null);
+            if (!r.Ok)
+            {
+                Messages(FamilyMessages, ("bad", "Can't read the family specs: " + string.Join(" ", r.Reasons())));
+                return false;
+            }
+            _specs = ((JArray)r.Body["families"]).Select(f => new SpecInfo
+            {
+                Family = f.Value<string>("family"), Role = f.Value<string>("role"), Priority = f.Value<string>("priority"),
+                Category = f.Value<string>("category"), Connectors = f.Value<int>("connectors"), Parameters = f.Value<int>("parameters"),
+            }).ToList();
+            _pilot = Strings(r.Body["pilot_set"]);
+            if (_usePilotDefault && _pilot.Count == 0)
+                FamiliesEmpty.Text = "The kit has no pilot set (FMC_Family_Specs.json pilot_set). Use Change… to pick families.";
+            return true;
         }
 
         private void DryRun_Changed(object sender, RoutedEventArgs e) => UpdateActions();

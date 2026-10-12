@@ -137,16 +137,12 @@ namespace revit_mcp_plugin.UI
     public sealed class FamilyPickerWindow : FmcWindow
     {
         public const int Max = 25;
-        public static readonly string[] PilotSet =
-        {
-            "FMC_P_MechEq_WaterHeater_Instant", "FMC_P_MechEq_BoosterPumpSet", "FMC_FP_MechEq_FirePumpSet",
-            "FMC_E_ElecFixture_PowerConnection", "FMC_I_Casework_Vanity", "FMC_FP_SpecEq_Extinguisher",
-        };
 
         public List<string> Names { get; private set; }
         public string Label { get; private set; }
 
         private readonly List<SpecInfo> _all;
+        private readonly List<string> _pilot;
         private readonly HashSet<string> _picked;
         private readonly ComboBox _role = new ComboBox { MinWidth = 70, Margin = new Thickness(0, 0, 6, 0) };
         private readonly ComboBox _priority = new ComboBox { MinWidth = 70, Margin = new Thickness(0, 0, 6, 0) };
@@ -155,9 +151,11 @@ namespace revit_mcp_plugin.UI
         private readonly TextBlock _count = new TextBlock { VerticalAlignment = VerticalAlignment.Center };
         private readonly Button _ok;
 
-        public FamilyPickerWindow(List<SpecInfo> all, IEnumerable<string> current) : base("Choose families", 520)
+        /// <param name="pilot">The kit's pilot set (FMC_Family_Specs.json pilot_set); empty hides the button.</param>
+        public FamilyPickerWindow(List<SpecInfo> all, List<string> pilot, IEnumerable<string> current) : base("Choose families", 520)
         {
             _all = all;
+            _pilot = pilot ?? new List<string>();
             _picked = new HashSet<string>(current ?? Enumerable.Empty<string>());
 
             _role.Items.Add("All roles");
@@ -175,7 +173,8 @@ namespace revit_mcp_plugin.UI
             filters.Children.Add(_role); filters.Children.Add(_priority); filters.Children.Add(_search);
 
             var quick = new WrapPanel { Margin = new Thickness(0, 0, 0, 8) };
-            quick.Children.Add(SmallButton("Pilot set", () => { _picked.Clear(); foreach (var n in PilotSet) _picked.Add(n); Fill(); }));
+            if (_pilot.Count > 0)
+                quick.Children.Add(SmallButton("Pilot set", () => { _picked.Clear(); foreach (var n in _pilot) _picked.Add(n); Fill(); }));
             quick.Children.Add(SmallButton("Select shown", () => { foreach (var s in Shown().Take(Max)) _picked.Add(s.Family); Fill(); }));
             quick.Children.Add(SmallButton("Clear", () => { _picked.Clear(); Fill(); }));
 
@@ -199,6 +198,11 @@ namespace revit_mcp_plugin.UI
             Content = root;
             Fill();
         }
+
+        public static string PilotLabel(int n) => $"Pilot set · {n} families";
+
+        public static bool PilotLabelFits(List<string> names, List<string> pilot) =>
+            pilot.Count > 0 && names.Count == pilot.Count && pilot.All(names.Contains);
 
         private Button SmallButton(string label, Action click)
         {
@@ -246,9 +250,9 @@ namespace revit_mcp_plugin.UI
         {
             // Keep the register's order, so batches read the same way every time.
             Names = _all.Where(s => _picked.Contains(s.Family)).Select(s => s.Family).ToList();
-            bool pilot = Names.Count == PilotSet.Length && PilotSet.All(_picked.Contains);
+            bool pilot = PilotLabelFits(Names, _pilot);
             var roles = _all.Where(s => _picked.Contains(s.Family)).Select(s => s.Role).Distinct().ToList();
-            Label = pilot ? $"Pilot set · {Names.Count} families"
+            Label = pilot ? PilotLabel(Names.Count)
                 : roles.Count == 1 ? $"Role {roles[0]} · {Names.Count} families"
                 : $"{Names.Count} families";
             DialogResult = true;

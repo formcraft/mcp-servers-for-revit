@@ -180,10 +180,11 @@
     </Style>
 
     <!-- Message box in a section: Kind = ready | warn | done | bad | none -->
+    <!-- Kind none is the neutral box (HANDOFF_NEXT: #EEF0F3 / #4A515C) -->
     <Style TargetType="Border" x:Key="Callout">
         <Setter Property="CornerRadius" Value="6"/>
         <Setter Property="Padding" Value="10,8"/>
-        <Setter Property="Background" Value="{DynamicResource SurfaceMuted}"/>
+        <Setter Property="Background" Value="{DynamicResource SegmentTrack}"/>
         <Style.Triggers>
             <DataTrigger Binding="{Binding Kind}" Value="ready"><Setter Property="Background" Value="{DynamicResource InfoBg}"/></DataTrigger>
             <DataTrigger Binding="{Binding Kind}" Value="warn"><Setter Property="Background" Value="{DynamicResource WarnBg}"/></DataTrigger>
@@ -195,7 +196,7 @@
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="LineHeight" Value="17.4"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
-        <Setter Property="Foreground" Value="{DynamicResource TextBody}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
     </Style>
 
     <!-- Note box under a section's list (HANDOFF_NEXT C1): padding 5 x 8, text 11.5, radius 4 -->
