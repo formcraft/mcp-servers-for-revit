@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Formcraft Browser Claude tab</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F6FEB}a:hover{color:#1556BD}
+</style>
+</helmet>
+<div style="width: 1440px; height: 960px; box-sizing: border-box; padding: 48px 56px; background: #F6F7F9; color: #1A1D21; font-family: 'IBM Plex Sans', sans-serif; display: flex; gap: 48px">
+  <div style="width: 900px; flex-shrink: 0; background: #FFFFFF; border: 1px solid #C9CED6; border-radius: 8px; box-shadow: 0 12px 32px rgba(26,29,33,0.10); display: flex; flex-direction: column; overflow: hidden">
+    <div style="display: flex; gap: 2px; padding: 6px 12px 0; background: #EEF0F3; font-size: 12.5px; color: #5B6270">
+      <span style="padding: 5px 10px">Systems</span><span style="padding: 5px 10px">Annotate</span><span style="padding: 5px 10px">View</span>
+      <span style="padding: 5px 12px; background: #FFFFFF; color: #1F6FEB; font-weight: 600; border-radius: 6px 6px 0 0">Formcraft</span>
+    </div>
+    <div style="display: flex; flex-grow: 1; min-height: 0">
+      <div style="width: 420px; flex-shrink: 0; border-right: 1px solid #D5D9DF; display: flex; flex-direction: column; font-size: 13px">
+        <div style="height: 32px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; background: #F1F3F5; border-bottom: 1px solid #D5D9DF; font-size: 13px; font-weight: 600">
+          <span>Formcraft Browser</span><span aria-hidden="true" style="color: #8A919C; font-weight: 400">⇲ ✕</span>
+        </div>
+
+        <div style="padding: 10px 12px; border-bottom: 1px solid #E3E6EA; display: flex; flex-direction: column; gap: 6px">
+          <div style="display: flex; align-items: center; gap: 8px">
+            <span style="width: 9px; height: 9px; border-radius: 50%; background: #1E8E3E; flex-shrink: 0"></span>
+            <span style="font-weight: 600">Claude connected</span>
+            <span style="margin-left: auto; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #5B6270">port 8080 · Revit 2025</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 6px; background: #E6F4EA">
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 11h12v9H6z M8.5 11V8a3.5 3.5 0 0 1 6.8-1.2" fill="none" stroke="#1E6B34" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            <div style="display: flex; flex-direction: column; min-width: 0">
+              <span style="font-weight: 600; color: #1E6B34">FMC_ChainTest_P.rvt</span>
+              <span style="font-size: 11.5px; color: #1E6B34">Library file: model tools open</span>
+            </div>
+            <span style="margin-left: auto; font-size: 11.5px; color: #1E6B34">_ChainTests</span>
+          </div>
+        </div>
+
+        <div role="tablist" aria-label="Pane sections"style="display: flex; margin: 10px 12px 6px; padding: 3px; background: #EEF0F3; border-radius: 6px; gap: 2px">
+          <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+            <button role="tab" onClick="{{t.pick}}" style="flex: 1; min-height: 30px; border: none; border-radius: 4px; background: {{t.bg}}; color: {{t.fg}}; font: inherit; font-size: 12.5px; font-weight: {{t.weight}}; cursor: pointer">{{t.label}}</button>
+          </sc-for>
+        </div>
+
+        <div style="flex-grow: 1; min-height: 0; overflow: auto; padding: 2px 12px 8px">
+          <sc-if value="{{isFamilies}}" hint-placeholder-val="{{true}}">
+            <div style="display: flex; align-items: center; gap: 8px; margin: 4px 0 8px">
+              <span style="font-size: 12px; color: #4A515C">Selection</span>
+              <span style="border: 1px solid #D5D9DF; border-radius: 4px; padding: 3px 8px; background: #FFFFFF">Pilot set · 6 families</span>
+              <button style="min-height: 28px; padding: 2px 8px; border: 1px solid #C9CED6; background: #FFFFFF; border-radius: 4px; font: inherit; font-size: 12px; cursor: pointer">Change…</button>
+              <label style="margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer"><input type="checkbox" checked="{{dryRun}}" onChange="{{toggleDry}}">Dry run</label>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 2px">
+              <sc-for list="{{families}}" as="f" hint-placeholder-count="6">
+                <label style="display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: center; gap: 8px; min-height: 44px; padding: 3px 6px; border-radius: 4px; background: {{f.bg}}; cursor: pointer">
+                  <input type="checkbox" checked="{{f.on}}" onChange="{{f.toggle}}">
+                  <span style="display: flex; flex-direction: column; min-width: 0">
+                    <span style="font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{f.name}}</span>
+                    <span style="font-size: 11.5px; color: #5B6270">{{f.meta}}</span>
+                  </span>
+                  <span style="font-size: 11.5px; padding: 2px 7px; border-radius: 10px; background: {{f.chipBg}}; color: {{f.chipFg}}; white-space: nowrap">{{f.status}}</span>
+                </label>
+              </sc-for>
+            </div>
+            <div style="margin-top: 6px; padding: 5px 8px; border-radius: 4px; background: #FFF4E0; color: #6B4100; font-size: 11.5px; line-height: 1.4">Fire pump: FMC_Power_W_2 is not in the dictionary, so it is skipped and listed as a change request. Vanity: nest the basin by hand.</div>
+          </sc-if>
+
+          <sc-if value="{{isFiles}}" hint-placeholder-val="{{false}}">
+            <div style="font-size: 12px; color: #4A515C; margin: 4px 0 6px">Open in Revit</div>
+            <sc-for list="{{docs}}" as="d" hint-placeholder-count="3">
+              <div style="display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; min-height: 46px; padding: 4px 6px; border-bottom: 1px solid #EEF0F3">
+                <span style="display: flex; flex-direction: column; min-width: 0">
+                  <span style="font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{d.title}}</span>
+                  <span style="font-size: 11.5px; color: {{d.badgeFg}}">{{d.badge}}</span>
+                </span>
+                <span style="display: flex; gap: 4px">
+                  <button style="min-height: 30px; padding: 2px 8px; border: 1px solid #C9CED6; background: #FFFFFF; border-radius: 4px; font: inherit; font-size: 12px; color: {{d.saveFg}}; cursor: pointer">Save as…</button>
+                  <button style="min-height: 30px; padding: 2px 8px; border: 1px solid #C9CED6; background: #FFFFFF; border-radius: 4px; font: inherit; font-size: 12px; cursor: pointer">Close</button>
+                </span>
+              </div>
+            </sc-for>
+            <div style="display: flex; gap: 6px; margin-top: 10px">
+              <button style="min-height: 34px; padding: 4px 10px; border: 1px solid #C9CED6; background: #FFFFFF; border-radius: 4px; font: inherit; font-size: 12.5px; cursor: pointer">New from template…</button>
+              <button style="min-height: 34px; padding: 4px 10px; border: 1px solid #C9CED6; background: #FFFFFF; border-radius: 4px; font: inherit; font-size: 12.5px; cursor: pointer">Archive a closed file…</button>
+            </div>
+            <div style="margin-top: 10px; font-size: 12px; line-height: 1.45; color: #4A515C">Writes go only to WIP and staging folders. Nothing is deleted: Archive moves a file to _Archive.</div>
+          </sc-if>
+
+          <sc-if value="{{isActivity}}" hint-placeholder-val="{{false}}">
+            <div style="font-size: 12px; color: #4A515C; margin: 4px 0 6px">From FMC_MCP_FileLog.csv</div>
+            <sc-for list="{{log}}" as="l" hint-placeholder-count="6">
+              <div style="display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 8px; min-height: 40px; border-bottom: 1px solid #EEF0F3">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #5B6270">{{l.time}}</span>
+                <span style="display: flex; flex-direction: column; min-width: 0">
+                  <span style="font-weight: 500">{{l.action}}</span>
+                  <span style="font-size: 11.5px; color: #5B6270; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{l.target}}</span>
+                </span>
+                <span style="font-size: 11.5px; padding: 2px 7px; border-radius: 10px; background: {{l.chipBg}}; color: {{l.chipFg}}">{{l.result}}</span>
+              </div>
+            </sc-for>
+          </sc-if>
+
+          <sc-if value="{{isGuard}}" hint-placeholder-val="{{false}}">
+            <sc-for list="{{guard}}" as="g" hint-placeholder-count="6">
+              <div style="display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 8px; align-items: start; padding: 8px 0; border-bottom: 1px solid #EEF0F3">
+                <span style="color: #4A515C">{{g.label}}</span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; line-height: 1.5; white-space: pre-line">{{g.value}}</span>
+              </div>
+            </sc-for>
+            <div style="display: flex; gap: 6px; margin-top: 10px">
+              <button style="min-height: 34px; padding: 4px 10px; border: 1px solid #C9CED6; background: #FFFFFF; border-radius: 4px; font: inherit; font-size: 12.5px; cursor: pointer">Open fmc_guard.json</button>
+              <button style="min-height: 34px; padding: 4px 10px; border: 1px solid #C9CED6; background: #FFFFFF; border-radius: 4px; font: inherit; font-size: 12.5px; cursor: pointer">Reload</button>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="display: flex; gap: 4px; align-items: center; padding: 4px 8px; border-top: 1px solid #E3E6EA; background: #F8F9FA">
+          <sc-if value="{{isFamilies}}" hint-placeholder-val="{{true}}">
+            <button style="min-height: 24px; padding: 1px 8px; font: inherit; font-size: 11.5px; border: 1px solid #C9CED6; background: #FFFFFF; border-radius: 3px; cursor: pointer">Plan</button>
+            <button style="min-height: 24px; padding: 1px 8px; font: inherit; font-size: 11.5px; font-weight: 600; border: 1px solid #1F6FEB; background: #1F6FEB; color: #FFFFFF; border-radius: 3px; cursor: pointer">{{buildLabel}}</button>
+            <button style="min-height: 24px; padding: 1px 8px; font: inherit; font-size: 11.5px; border: 1px solid #C9CED6; background: #FFFFFF; border-radius: 3px; cursor: pointer">Load test</button>
+          </sc-if>
+          <span style="margin-left: auto; font-size: 11.5px; color: #5B6270">{{footerNote}}</span>
+        </div>
+      </div>
+
+      <div style="flex-grow: 1; background: #FBFBFC; position: relative; display: flex; align-items: center; justify-content: center">
+        <svg width="380" height="300" viewBox="0 0 380 300" aria-hidden="true"><rect x="70" y="40" width="160" height="110" rx="4" fill="#FFFFFF" stroke="#9AA1AC" stroke-width="2"></rect><rect x="150" y="190" width="160" height="80" rx="4" fill="#FFFFFF" stroke="#9AA1AC" stroke-width="2"></rect><path d="M110 150 V215 H150" fill="none" stroke="#00B050" stroke-width="3"></path><path d="M150 95 H40" fill="none" stroke="#0070C0" stroke-width="3"></path><path d="M230 75 H330 V190" fill="none" stroke="#FF9900" stroke-width="3"></path><circle cx="330" cy="200" r="9" fill="#FFC000"></circle></svg>
+        <div style="position: absolute; left: 16px; bottom: 12px; font-size: 12.5px; color: #8A919C">3D view · FMC_ChainTest_P</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex: 1; display: flex; flex-direction: column; gap: 20px; padding-top: 4px">
+    <div>
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; color: #4A515C">Formcraft Browser · Claude</div>
+      <h2 style="margin: 10px 0 0; font-size: 36px; line-height: 1.1; font-weight: 700; letter-spacing: -1px">Claude's controls, docked beside the model</h2>
+    </div>
+    <div style="border-top: 3px solid #1F6FEB; padding-top: 10px"><div style="font-size: 18px; font-weight: 600">A dockable pane that stays open</div><div style="margin-top: 4px; font-size: 15px; line-height: 1.5; color: #3B424D">Docks or tabs with Project Browser and Properties and stays open while you work. The Formcraft Browser ribbon toggle shows and hides it.</div></div>
+    <div style="border-top: 3px solid #1F6FEB; padding-top: 10px"><div style="font-size: 18px; font-weight: 600">Connection and lock at a glance</div><div style="margin-top: 4px; font-size: 15px; line-height: 1.5; color: #3B424D">The top strip says whether Claude is connected and whether the active file is a library file (model tools open) or a live project (read-only for Claude).</div></div>
+    <div style="border-top: 3px solid #1F6FEB; padding-top: 10px"><div style="font-size: 18px; font-weight: 600">Families: plan, build, load test</div><div style="margin-top: 4px; font-size: 15px; line-height: 1.5; color: #3B424D">Dry run is on by default. Families land in staging; release stays with the Family Librarian. Click the section tabs to try them.</div></div>
+    <div style="border-top: 3px solid #1F6FEB; padding-top: 10px"><div style="font-size: 18px; font-weight: 600">Every action is in the log</div><div style="margin-top: 4px; font-size: 15px; line-height: 1.5; color: #3B424D">Activity reads the same CSV the tools write, and Guard shows the folder rules from fmc_guard.json without opening it.</div></div>
+    <div style="margin-top: auto; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; line-height: 1.5; color: #5B6270">Families, files and log rows are sample data from the pilot set.</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { tab: 'families', dry: true, off: {} };
+}
+renderVals() {
+const chip = (kind) => ({
+ready: ['#E8F0FE', '#1556BD'], warn: ['#FFF4E0', '#6B4100'], done: ['#E6F4EA', '#1E6B34'], bad: ['#FDECEA', '#A50E0E']
+})[kind];
+const tabDefs = [['families', 'Families'], ['files', 'Files'], ['activity', 'Activity'], ['guard', 'Guard']];
+const tab = this.state.tab;
+const tabs = tabDefs.map(([id, label]) => ({
+label, bg: id === tab ? '#FFFFFF' : 'transparent', fg: id === tab ? '#1A1D21' : '#4A515C',
+weight: id === tab ? '600' : '400', pick: () => this.setState({ tab: id })
+}));
+const fam = [
+['FMC_P_MechEq_WaterHeater_Instant', 'P · 3 connectors · 9 parameters', 'Ready', 'ready'],
+['FMC_P_MechEq_BoosterPumpSet', 'P · 3 connectors · 9 parameters', 'Ready', 'ready'],
+['FMC_FP_MechEq_FirePumpSet', 'FP · 4 connectors · 9 parameters', '1 note', 'warn'],
+['FMC_E_ElecFixture_PowerConnection', 'E · 1 connector · 1 parameter', 'Built', 'done'],
+['FMC_I_Casework_Vanity', 'I · nested basin · 1 parameter', '1 note', 'warn'],
+['FMC_FP_SpecEq_Extinguisher', 'FP · no connectors · 9 parameters', 'Load tested', 'done']
+];
+const off = this.state.off;
+const families = fam.map(([name, meta, status, kind]) => {
+const on = !off[name];
+const [chipBg, chipFg] = chip(kind);
+return { name, meta, status, chipBg, chipFg, on, bg: on ? '#F1F5FE' : 'transparent',
+toggle: () => this.setState({ off: Object.assign({}, off, { [name]: on }) }) };
+});
+const picked = families.filter((f) => f.on).length;
+const docs = [
+{ title: 'FMC_ChainTest_P.rvt', badge: 'Library file · active', badgeFg: '#1E6B34', saveFg: '#1A1D21' },
+{ title: 'FMC_P_MechEq_WaterHeater_Instant.rfa', badge: 'Family · _Staging\\P', badgeFg: '#5B6270', saveFg: '#1A1D21' },
+{ title: 'F26001-FMC-ZZ-ZZ-M3-P-0001.rvt', badge: 'Live project · workshared · read-only for Claude', badgeFg: '#A50E0E', saveFg: '#8A919C' }
+];
+const L = (time, action, target, result, kind) => { const [chipBg, chipFg] = chip(kind); return { time, action, target, result, chipBg, chipFg }; };
+const log = [
+L('10:42', 'Load test', 'FMC_FP_SpecEq_Extinguisher', 'Pass', 'done'),
+L('10:38', 'Build', '2 families → _Staging', 'Done', 'done'),
+L('10:37', 'Build (dry run)', '6 families', 'Plan', 'ready'),
+L('10:35', 'Plan', 'Pilot set · 6 families', '2 notes', 'warn'),
+L('10:20', 'Save as', 'F26001-FMC-ZZ-ZZ-M3-P-0001.rvt', 'Refused', 'bad'),
+L('10:12', 'Create from template', 'FMC_ChainTest_P.rvt', 'Done', 'done')
+];
+const guard = [
+{ label: 'Config', value: '%APPDATA%\\Formcraft\\fmc_guard.json' },
+{ label: 'Write folders', value: 'Projects\\*\\01_WIP\n04_Families\\_Staging\n04_Families\\_ChainTests\n06_Templates\\_Staging' },
+{ label: 'Library folders', value: '_Staging · _ChainTests · Templates _Staging' },
+{ label: 'Never written', value: '02_Shared · 03_Published\n04_Archive · 05_Incoming' },
+{ label: 'Live-model lock', value: 'On' },
+{ label: 'Tool profile', value: 'FMC (10 upstream tools hidden)' }
+];
+const dry = this.state.dry;
+return {
+tabs, families, docs, log, guard,
+isFamilies: tab === 'families', isFiles: tab === 'files', isActivity: tab === 'activity', isGuard: tab === 'guard',
+dryRun: dry, toggleDry: () => this.setState({ dry: !dry }),
+buildLabel: dry ? 'Build (dry run)' : 'Build ' + picked,
+footerNote: tab === 'families' ? picked + ' of 6 selected' : 'Service on · port 8080'
+};
+}
+}
+</script>
+</body>
+</html>
