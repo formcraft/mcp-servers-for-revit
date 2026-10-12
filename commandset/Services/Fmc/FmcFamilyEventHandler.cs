@@ -140,7 +140,21 @@ namespace RevitMCPCommandSet.Services.Fmc
                         catch (Exception ex) { warnings.Add($"{pn} not added: {ex.Message}"); }
                     }
 
-                    // 3 Part Type for electrical equipment (STD-002 5.2)
+                    // 3 category: stand-in templates (Generic Model, Generic Tag) take the register's category
+                    string setCategory = plan["set_category"]?.Value<string>() ?? "";
+                    if (setCategory != "")
+                    {
+                        var bic = ParseEnum<BuiltInCategory>(setCategory);
+                        Category? cat = bic.HasValue ? Category.GetCategory(fam, bic.Value) : null;
+                        if (cat == null) warnings.Add($"Category {setCategory} not available in Revit {rvt.VersionNumber}: set it in Family Category and Parameters");
+                        else if (fam.OwnerFamily.FamilyCategory?.Id != cat.Id)
+                        {
+                            try { fam.OwnerFamily.FamilyCategory = cat; result["category"] = cat.Name; }
+                            catch (Exception ex) { warnings.Add($"Category {cat.Name} not set: {ex.Message}"); }
+                        }
+                    }
+
+                    // 4 Part Type for electrical equipment (STD-002 5.2)
                     string partType = plan["part_type"]?.Value<string>() ?? "";
                     if (partType != "")
                     {
@@ -150,7 +164,7 @@ namespace RevitMCPCommandSet.Services.Fmc
                         else warnings.Add($"Part Type '{partType}' not set: set it in Family Category and Parameters");
                     }
 
-                    // 4 placeholder box and connectors
+                    // 5 placeholder box and connectors
                     if (connectors.Count > 0)
                         connectorsMade = AddConnectors(fam, fm, connectors, types, warnings);
 
