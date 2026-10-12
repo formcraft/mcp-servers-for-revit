@@ -16,6 +16,8 @@
         <Setter Property="Foreground" Value="{DynamicResource TextMeta}"/>
     </Style>
 
+    <CornerRadius x:Key="ButtonRadius">4</CornerRadius>
+
     <!-- Secondary button: white, grey border, 4 px radius, 34 px high -->
     <Style TargetType="Button">
         <Setter Property="FontFamily" Value="{DynamicResource Sans}"/>
@@ -31,7 +33,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="B" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="1" CornerRadius="4" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                            BorderThickness="1" CornerRadius="{DynamicResource ButtonRadius}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -63,7 +65,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="B" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="1" CornerRadius="4" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                            BorderThickness="1" CornerRadius="{DynamicResource ButtonRadius}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -91,6 +93,20 @@
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="MinHeight" Value="30"/>
         <Setter Property="Padding" Value="10,2"/>
+    </Style>
+
+    <!-- Compact footer (HANDOFF_NEXT C1): 24 px buttons, 11.5 px text, 3 px radius, 4 px gap; every section's footer -->
+    <Style TargetType="Button" x:Key="Footer" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="FontSize" Value="11.5"/>
+        <Setter Property="MinHeight" Value="24"/>
+        <Setter Property="Padding" Value="8,1"/>
+        <Setter Property="Margin" Value="0,0,4,0"/>
+    </Style>
+    <Style TargetType="Button" x:Key="FooterPrimary" BasedOn="{StaticResource Primary}">
+        <Setter Property="FontSize" Value="11.5"/>
+        <Setter Property="MinHeight" Value="24"/>
+        <Setter Property="Padding" Value="8,1"/>
+        <Setter Property="Margin" Value="0,0,4,0"/>
     </Style>
 
     <!-- Segmented section tabs -->
@@ -180,5 +196,15 @@
         <Setter Property="LineHeight" Value="17.4"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="Foreground" Value="{DynamicResource TextBody}"/>
+    </Style>
+
+    <!-- Note box under a section's list (HANDOFF_NEXT C1): padding 5 x 8, text 11.5, radius 4 -->
+    <Style TargetType="Border" x:Key="NoteBox" BasedOn="{StaticResource Callout}">
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Padding" Value="8,5"/>
+    </Style>
+    <Style TargetType="TextBlock" x:Key="NoteText" BasedOn="{StaticResource CalloutText}">
+        <Setter Property="FontSize" Value="11.5"/>
+        <Setter Property="LineHeight" Value="16.5"/>
     </Style>
 </ResourceDictionary>
