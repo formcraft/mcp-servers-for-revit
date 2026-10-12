@@ -117,8 +117,15 @@ namespace RevitMCPCommandSet.Services.Fmc
                 var types = (plan["types"] as JArray)?.Select(x => x.Value<string>() ?? "").Where(x => x != "").ToList() ?? new List<string>();
                 var connectors = (plan["connectors"] as JArray)?.OfType<JObject>().ToList() ?? new List<JObject>();
 
+                var revitErrors = new List<string>();
                 using (var t = new Transaction(fam, "FMC build family"))
                 {
+                    // Without a handler a Revit warning opens a modal dialog and the build waits for a click until the
+                    // command times out. Warnings are recorded for the Family Librarian; errors roll this family back.
+                    var opts = t.GetFailureHandlingOptions();
+                    opts.SetFailuresPreprocessor(new RecordFailures(warnings, revitErrors));
+                    opts.SetClearAfterRollback(true);
+                    t.SetFailureHandlingOptions(opts);
                     t.Start();
                     // 1 types
                     var existing = new HashSet<string>(fm.Types.Cast<FamilyType>().Select(x => x.Name), StringComparer.OrdinalIgnoreCase);
@@ -168,7 +175,9 @@ namespace RevitMCPCommandSet.Services.Fmc
                     if (connectors.Count > 0)
                         connectorsMade = AddConnectors(fam, fm, connectors, types, warnings);
 
-                    t.Commit();
+                    if (t.Commit() != TransactionStatus.Committed)
+                        throw new InvalidOperationException("Revit rolled the family back" +
+                            (revitErrors.Count > 0 ? ": " + string.Join("; ", revitErrors) : ""));
                 }
 
                 Directory.CreateDirectory(Path.GetDirectoryName(target)!);
@@ -362,6 +371,37 @@ namespace RevitMCPCommandSet.Services.Fmc
             public bool OnFamilyFound(bool familyInUse, out bool overwriteParameterValues) { overwriteParameterValues = true; return true; }
             public bool OnSharedFamilyFound(Family sharedFamily, bool familyInUse, out FamilySource source, out bool overwriteParameterValues)
             { source = FamilySource.Family; overwriteParameterValues = true; return true; }
+        }
+
+        /// <summary>
+        /// Build failures: each warning's text goes into the family's result (every warning is shown, Manual rule) and
+        /// is cleared so no dialog waits for a click; any error rolls this family back and the batch carries on.
+        /// </summary>
+        private class RecordFailures : IFailuresPreprocessor
+        {
+            private readonly JArray _warnings;
+            private readonly List<string> _errors;
+            public RecordFailures(JArray warnings, List<string> errors) { _warnings = warnings; _errors = errors; }
+
+            public FailureProcessingResult PreprocessFailures(FailuresAccessor a)
+            {
+                bool error = false;
+                foreach (var f in a.GetFailureMessages())
+                {
+                    string text = f.GetDescriptionText();
+                    if (f.GetSeverity() == FailureSeverity.Warning)
+                    {
+                        _warnings.Add("Revit warning: " + text);
+                        a.DeleteWarning(f);
+                    }
+                    else
+                    {
+                        _errors.Add(text);
+                        error = true;
+                    }
+                }
+                return error ? FailureProcessingResult.ProceedWithRollBack : FailureProcessingResult.Continue;
+            }
         }
 
         private class SwallowWarnings : IFailuresPreprocessor
