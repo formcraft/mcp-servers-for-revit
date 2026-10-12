@@ -17,6 +17,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- 1. Status strip: connection, active document, not-ready cards -->
@@ -239,9 +240,22 @@
             </Grid>
         </ScrollViewer>
 
+        <!-- Command box: fixed commands that run the same code as the buttons (no AI). Type "help" for the list. -->
+        <Border Grid.Row="3" BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Padding="8,6">
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Content="Run" Style="{StaticResource SmallPrimary}" MinHeight="26" Margin="6,0,0,0" Click="RunCommand_Click"/>
+                <Grid>
+                    <TextBox x:Name="CommandBox" KeyDown="CommandBox_KeyDown" TextChanged="CommandBox_TextChanged" VerticalContentAlignment="Center"
+                             ToolTip="plan · dry run · yes build · yes build one by one · load test · yes load test · probe · pilot · start service · help"/>
+                    <TextBlock x:Name="CommandHint" Text="Type a command: plan, dry run, yes build, load test, help" Style="{StaticResource Meta}"
+                               IsHitTestVisible="False" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                </Grid>
+            </DockPanel>
+        </Border>
+
         <!-- 4. Footer: section actions left, status note right -->
         <!-- Compact footer (HANDOFF_NEXT C1): padding 4 x 8, 24 px buttons with a 3 px radius, 11.5 px text -->
-        <Border Grid.Row="3" BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Background="{DynamicResource SurfaceMuted}" Padding="8,4">
+        <Border Grid.Row="4" BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Background="{DynamicResource SurfaceMuted}" Padding="8,4">
             <Border.Resources>
                 <CornerRadius x:Key="ButtonRadius">3</CornerRadius>
             </Border.Resources>

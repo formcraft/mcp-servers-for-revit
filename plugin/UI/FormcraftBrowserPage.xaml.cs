@@ -7,7 +7,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Text.RegularExpressions;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using Newtonsoft.Json.Linq;
@@ -443,11 +445,26 @@ namespace revit_mcp_plugin.UI
             row.Tip = string.Join("\n", row.Problems.Concat(row.Notes).DefaultIfEmpty("No problems or notes"));
         }
 
-        private async void Build_Click(object sender, RoutedEventArgs e)
+        private async void Build_Click(object sender, RoutedEventArgs e) => await BuildAsync(DryRun.IsChecked == true, typedYes: false, oneByOne: false);
+
+        /// <summary>The selection a dry run passed for, so a typed "yes" can only confirm what was just shown.</summary>
+        private string _buildDryRunFor, _loadDryRunFor;
+        private string SelectionKey() => string.Join("|", Picked());
+
+        /// <param name="typedYes">"yes build" in the command box is the user's yes: no dialog, but only after a dry run of this selection.</param>
+        /// <param name="oneByOne">One Revit call per family, so a problem shows exactly which family caused it.</param>
+        private async Task BuildAsync(bool dry, bool typedYes, bool oneByOne)
         {
             var names = Picked();
-            bool dry = DryRun.IsChecked == true;
+            if (names.Count == 0) { Messages(FamilyMessages, ("warn", "No families selected.")); return; }
             var args = new JObject { ["action"] = "build", ["families"] = JArray.FromObject(names), ["dry_run"] = true };
+            if (typedYes && _buildDryRunFor != SelectionKey())
+            {
+                await BuildAsync(true, false, false);
+                if (_buildDryRunFor == SelectionKey())
+                    AddMessage(FamilyMessages, "ready", "Dry run done. Type \"yes build\" (or \"yes build one by one\") again to build for real.");
+                return;
+            }
 
             if (dry)
             {
@@ -463,27 +480,42 @@ namespace revit_mcp_plugin.UI
                     (skipped.Count > 0 ? $" {skipped.Count} skipped (see their chips)." : "") + " Untick Dry run, then Build to run it.") };
                 if (skipped.Count > 0) msgs.Add(("warn", "Skipped:\n" + Bullets(skipped.Values.SelectMany(b => Strings(b["problems"]).Select(p => $"{Short(b.Value<string>("family"))}: {p}")))));
                 Messages(FamilyMessages, msgs.ToArray());
+                _buildDryRunFor = would.Count > 0 ? SelectionKey() : null;
                 return;
             }
 
-            // Real build: show what will happen and ask again (Manual 17.2).
+            bool overwrite = false;
+            if (!typedYes)
+            {
+            // Real build from the button: show what will happen and ask again (Manual 17.2).
             bool anyStaged = _families.Any(f => f.On && f.Status == "In staging");
             int choice = FmcDialog.Ask($"Build {names.Count} families?",
                 $"Creates data-shell families in {_guard.FamilyStagingRoot}\\<Role>. Families with problems are skipped. " +
                 "Release stays with the Family Librarian.",
                 names, $"Build {names.Count}", null,
                 anyStaged ? "Rebuild families already in staging (the old file is replaced; Revit keeps its backups)" : null,
-                out bool overwrite);
+                out overwrite);
             if (choice != 1) return;
+            }
             args["dry_run"] = false;
             if (overwrite) { args["overwrite"] = true; args["confirm"] = true; }
 
-            SetBusy($"Building {names.Count} families in Revit…");
-            CliResult r = await ServerCli.RunAsync("fmc_family", args);
-            SetBusy(null);
-            if (!r.Ok) { Messages(FamilyMessages, ("bad", "Build refused: " + string.Join(" ", r.Reasons()))); return; }
-
-            var results = r.Body["result"]?["families"] as JArray ?? new JArray();
+            var batches = oneByOne ? names.Select(n => new List<string> { n }).ToList() : new List<List<string>> { names };
+            var results = new JArray();
+            var refusals = new List<string>();
+            int step = 0;
+            foreach (var batch in batches)
+            {
+                step++;
+                args["families"] = JArray.FromObject(batch);
+                SetBusy(oneByOne ? $"Building {step} of {batches.Count}: {Short(batch[0])}…" : $"Building {names.Count} families in Revit…");
+                CliResult r = await ServerCli.RunAsync("fmc_family", args);
+                SetBusy(null);
+                if (!r.Ok) { refusals.Add((oneByOne ? Short(batch[0]) + ": " : "") + string.Join(" ", r.Reasons())); continue; }
+                foreach (var f in (r.Body["result"]?["families"] as JArray ?? new JArray())) results.Add(f);
+            }
+            _buildDryRunFor = null;
+            if (results.Count == 0) { Messages(FamilyMessages, ("bad", "Build refused: " + string.Join("\n", refusals))); return; }
             var warnings = new List<string>();
             foreach (JObject f in results.OfType<JObject>())
             {
@@ -496,21 +528,31 @@ namespace revit_mcp_plugin.UI
                 warnings.AddRange(w.Select(x => $"{Short(row.Name)}: {x}"));
                 row.Tip = failed ? f.Value<string>("error") : $"Saved to {f.Value<string>("saved")}" + (w.Count > 0 ? "\n" + string.Join("\n", w) : "");
             }
-            int built = r.Body["result"]?.Value<int?>("built") ?? 0, failedCount = r.Body["result"]?.Value<int?>("failed") ?? 0;
+            int failedCount = results.OfType<JObject>().Count(f => f["error"] != null), built = results.Count - failedCount;
             var done = new List<(string, string)> { (failedCount > 0 ? "warn" : "done", $"Built {built}" + (failedCount > 0 ? $", {failedCount} failed (hover the chip for why)." : ".") + " Logged in FMC_MCP_FileLog.csv.") };
             // Every warning is shown: they are the hand steps left for the Family Librarian.
             if (warnings.Count > 0) done.Add(("warn", "Hand steps left for the Family Librarian:\n" + Bullets(warnings, 30)));
+            if (refusals.Count > 0) done.Add(("bad", "Refused:\n" + Bullets(refusals)));
             Messages(FamilyMessages, done.ToArray());
         }
 
-        private async void LoadTest_Click(object sender, RoutedEventArgs e)
+        private async void LoadTest_Click(object sender, RoutedEventArgs e) => await LoadTestAsync(DryRun.IsChecked == true, typedYes: false);
+
+        private async Task LoadTestAsync(bool dry, bool typedYes)
         {
             var names = Picked();
-            bool dry = DryRun.IsChecked == true;
+            if (names.Count == 0) { Messages(FamilyMessages, ("warn", "No families selected.")); return; }
+            if (typedYes && _loadDryRunFor != SelectionKey())
+            {
+                await LoadTestAsync(true, false);
+                if (_loadDryRunFor == SelectionKey())
+                    AddMessage(FamilyMessages, "ready", "Dry run done. Type \"yes load test\" again to run it in Revit.");
+                return;
+            }
             var args = new JObject { ["action"] = "load_test", ["families"] = JArray.FromObject(names), ["dry_run"] = true };
             if (!dry)
             {
-                if (!FmcDialog.Confirm($"Load test in {Active?.Title}?",
+                if (!typedYes && !FmcDialog.Confirm($"Load test in {Active?.Title}?",
                         "Loads the staged families into the active chain-test project, places one of each type, flexes them, " +
                         "and checks connectors and parameters.", names, "Load test")) return;
                 args["dry_run"] = false;
@@ -524,6 +566,7 @@ namespace revit_mcp_plugin.UI
             if (dry)
             {
                 var would = Strings(r.Body["would_load_and_place"]);
+                _loadDryRunFor = would.Count > 0 ? SelectionKey() : null;
                 Messages(FamilyMessages, ("ready", $"Dry run: would load and place {would.Count}." +
                     (missing.Count > 0 ? $" Not in staging yet (build first): {string.Join(", ", missing.Select(Short))}." : "") +
                     " Untick Dry run, then Load test to run it."));
@@ -545,6 +588,81 @@ namespace revit_mcp_plugin.UI
             string note = r.Body["result"]?.Value<string>("note");
             if (!string.IsNullOrEmpty(note)) msgs.Add(("none", note));
             Messages(FamilyMessages, msgs.ToArray());
+        }
+
+        // ================================================================ command box
+
+        private const string CommandHelp =
+            "Commands:\n" +
+            "• plan: check the selected families against the kit\n" +
+            "• dry run: what a build would do, without building\n" +
+            "• yes build: build after a dry run (yes build one by one: one Revit call per family)\n" +
+            "• load test, then yes load test: in the active FMC_ChainTest file\n" +
+            "• pilot: select the kit's pilot set · probe: test the connection · start service";
+
+        private void CommandBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter) return;
+            e.Handled = true;
+            RunCommand();
+        }
+
+        private void CommandBox_TextChanged(object sender, TextChangedEventArgs e) =>
+            CommandHint.Visibility = CommandBox.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+
+        private void RunCommand_Click(object sender, RoutedEventArgs e) => RunCommand();
+
+        /// <summary>
+        /// Fixed commands, matched exactly (no AI): each one calls the same method as its button. Typing "yes ..." is the
+        /// user's confirmation, so it replaces the dialog, and it only acts on a selection whose dry run just passed.
+        /// </summary>
+        private async void RunCommand()
+        {
+            string raw = CommandBox.Text.Trim();
+            if (raw.Length == 0) return;
+            string c = Regex.Replace(Regex.Replace(raw.ToLowerInvariant(), "[^a-z0-9 ]", " "), @"\bplease\b", " ");
+            c = Regex.Replace(c, @"\s+", " ").Trim();
+            CommandBox.Text = "";
+            TabFamilies.IsChecked = true;
+            if (_busy != null) { Messages(FamilyMessages, ("warn", $"Busy ({_busy}). Try again when it finishes.")); return; }
+
+            bool real = c.StartsWith("yes ");
+            if (real && !SocketService.Instance.IsRunning)
+            {
+                Messages(FamilyMessages, ("warn", "The Claude service is off, so Revit can't be reached. Type \"start service\" (or use the Formcraft tab), then try again."));
+                return;
+            }
+            switch (c)
+            {
+                case "help": case "": Messages(FamilyMessages, ("none", CommandHelp)); break;
+                case "plan": await PlanAsync(quiet: false); break;
+                case "dry run": case "build": case "build dry run": case "dry run build":
+                    await BuildAsync(dry: true, typedYes: false, oneByOne: false); break;
+                case "yes build": case "yes build all":
+                    await BuildAsync(dry: false, typedYes: true, oneByOne: false); break;
+                case "yes build one by one": case "yes build one at a time":
+                    await BuildAsync(dry: false, typedYes: true, oneByOne: true); break;
+                case "load test": case "dry run load test": case "load test dry run":
+                    await LoadTestAsync(dry: true, typedYes: false); break;
+                case "yes load test":
+                    await LoadTestAsync(dry: false, typedYes: true); break;
+                case "probe": RunProbe(); break;
+                case "pilot": case "select pilot": case "pilot set":
+                    if (await LoadSpecsAsync() && _pilot.Count > 0)
+                    {
+                        string label = FamilyPickerWindow.PilotLabel(_pilot.Count);
+                        BrowserSettings.Selection = (label, _pilot);
+                        SetSelection(_pilot, label);
+                        await PlanAsync(quiet: true);
+                    }
+                    break;
+                case "start service":
+                    if (SocketService.Instance.IsRunning) Messages(FamilyMessages, ("done", "The Claude service is already on."));
+                    else FormcraftBrowser.RequestToggleService();
+                    break;
+                default:
+                    Messages(FamilyMessages, ("warn", $"Unknown command \"{raw}\". " + CommandHelp)); break;
+            }
         }
 
         // ================================================================ Files
@@ -727,6 +845,13 @@ namespace revit_mcp_plugin.UI
 
         private static void Messages(ItemsControl target, params (string Kind, string Text)[] items) =>
             target.ItemsSource = items.Select(i => new { Kind = i.Kind, Text = i.Text }).ToList();
+
+        private static void AddMessage(ItemsControl target, string kind, string text)
+        {
+            var items = (target.ItemsSource as System.Collections.IEnumerable)?.Cast<object>().ToList() ?? new List<object>();
+            items.Add(new { Kind = kind, Text = text });
+            target.ItemsSource = items;
+        }
 
         private static string Bullets(IEnumerable<string> lines, int max = 12)
         {
