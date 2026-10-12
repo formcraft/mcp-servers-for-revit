@@ -1,7 +1,11 @@
+using System.IO;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Newtonsoft.Json.Linq;
 using RevitMCPSDK.API.Interfaces;
+using Directory = System.IO.Directory;
+using File = System.IO.File;
+using Path = System.IO.Path;
 
 namespace RevitMCPCommandSet.Services.Fmc
 {
@@ -111,7 +115,7 @@ namespace RevitMCPCommandSet.Services.Fmc
             string template = Parameters["template_path"]?.Value<string>() ?? "";
             string target = Parameters["save_path"]?.Value<string>() ?? "";
             bool closeAfter = Parameters["close_after"]?.Value<bool>() ?? true;
-            if (!File.Exists(template)) throw new FileNotFoundException($"Template not found: {template}");
+            if (!File.Exists(template)) throw new System.IO.FileNotFoundException($"Template not found: {template}");
             if (string.IsNullOrWhiteSpace(target)) throw new ArgumentException("save_path is required");
 
             Document doc;
