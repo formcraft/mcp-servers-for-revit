@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Claude ribbon panel and docking</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F6FEB}a:hover{color:#1556BD}
+</style>
+</helmet>
+<div style="width: 1440px; height: 810px; box-sizing: border-box; padding: 40px 56px; background: #F6F7F9; color: #1A1D21; font-family: 'IBM Plex Sans', sans-serif; display: flex; flex-direction: column; gap: 16px">
+  <div>
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; color: #4A515C">Ribbon</div>
+    <h2 style="margin: 8px 0 0; font-size: 36px; line-height: 1.08; font-weight: 700; letter-spacing: -1px">One toggle shows the pane; the service runs on its own</h2>
+  </div>
+
+  <div style="background: #FFFFFF; border: 1px solid #DDE1E6; border-radius: 10px; overflow: hidden">
+    <div style="display: flex; gap: 2px; padding: 6px 12px 0; background: #EEF0F3; font-size: 13px; color: #5B6270">
+      <span style="padding: 5px 10px">Architecture</span><span style="padding: 5px 10px">Systems</span><span style="padding: 5px 10px">View</span><span style="padding: 5px 10px">Manage</span>
+      <span style="padding: 5px 12px; background: #FFFFFF; color: #1F6FEB; font-weight: 600; border-radius: 6px 6px 0 0">Formcraft</span>
+    </div>
+    <div style="display: flex; padding: 12px 6px 6px">
+      <div style="display: flex; flex-direction: column; padding: 0 14px; border-right: 1px solid #E3E6EA">
+        <div style="display: flex; gap: 8px; align-items: flex-start">
+          <sc-for list="{{big}}" as="b" hint-placeholder-count="2">
+            <div style="width: 74px; display: flex; flex-direction: column; align-items: center; gap: 5px">
+              <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14.5" fill="{{b.fill}}" stroke="#1F6FEB" stroke-width="2"></circle><g transform="translate(7 7) scale(0.75)"><path d="{{b.icon}}" fill="none" stroke="{{b.stroke}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></g></svg>
+              <div style="font-size: 11.5px; text-align: center; line-height: 1.2; white-space: pre-line">{{b.label}}</div>
+            </div>
+          </sc-for>
+          <div style="display: flex; flex-direction: column; gap: 3px; padding-top: 2px">
+            <sc-for list="{{small}}" as="s" hint-placeholder-count="3">
+              <span style="display: flex; align-items: center; gap: 6px; font-size: 12px"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="{{s.icon}}" fill="none" stroke="#1F6FEB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>{{s.label}}</span>
+            </sc-for>
+          </div>
+        </div>
+        <div style="margin-top: 6px; font-size: 11.5px; color: #5B6270; text-align: center">Claude</div>
+      </div>
+      <div style="padding: 0 14px; display: flex; align-items: center; font-size: 12px; color: #8A919C">Other Formcraft panels</div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px">
+    <div style="border-top: 3px solid #1F6FEB; padding-top: 10px"><div style="font-size: 17px; font-weight: 600">Formcraft Browser</div><div style="margin-top: 4px; font-size: 14.5px; line-height: 1.5; color: #3B424D">Toggle: shows and hides the dockable pane. Its button stays pressed while the pane is open.</div></div>
+    <div style="border-top: 3px solid #1F6FEB; padding-top: 10px"><div style="font-size: 17px; font-weight: 600">Claude service</div><div style="margin-top: 4px; font-size: 14.5px; line-height: 1.5; color: #3B424D">Starts or stops listening on port 8080. Hiding the pane never stops the service.</div></div>
+    <div style="border-top: 3px solid #1F6FEB; padding-top: 10px"><div style="font-size: 17px; font-weight: 600">Guard, Log, Probe</div><div style="margin-top: 4px; font-size: 14.5px; line-height: 1.5; color: #3B424D">Open fmc_guard.json, open the FMC_Reports folder, or test the connection to Claude.</div></div>
+  </div>
+
+  <div style="display: flex; gap: 24px; align-items: stretch; flex-grow: 1; min-height: 0">
+    <div style="width: 300px; background: #FFFFFF; border: 1px solid #C9CED6; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; font-size: 12.5px">
+      <div style="display: flex; background: #F1F3F5; border-bottom: 1px solid #D5D9DF">
+        <span style="padding: 7px 10px; color: #4A515C">Properties</span>
+        <span style="padding: 7px 10px; color: #4A515C">Project Browser</span>
+        <span style="padding: 7px 10px; background: #FFFFFF; font-weight: 600; border-bottom: 2px solid #1F6FEB">Formcraft Browser</span>
+      </div>
+      <div style="padding: 10px; display: flex; flex-direction: column; gap: 6px">
+        <div style="display: flex; align-items: center; gap: 6px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #1E8E3E"></span><span style="font-weight: 600">Claude connected</span></div>
+        <div style="height: 10px; border-radius: 3px; background: #EEF0F3"></div>
+        <div style="height: 10px; width: 80%; border-radius: 3px; background: #EEF0F3"></div>
+        <div style="height: 10px; width: 60%; border-radius: 3px; background: #EEF0F3"></div>
+      </div>
+    </div>
+    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 10px; font-size: 15px; line-height: 1.5; color: #3B424D">
+      <div style="font-size: 18px; font-weight: 600; color: #1A1D21">Docks or tabs with Project Browser and Properties</div>
+      <div>Registered as a Revit dockable pane at start-up, tabbed beside Properties by default. Drag it to dock, float it on a second screen; Revit remembers where it was.</div>
+      <div>The pane only reads state and sends requests through the same guarded tools Claude uses, so the pane and Claude can never disagree about what is allowed.</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":810}}'>
+class Component extends DCLogic {
+renderVals() {
+const ic = {
+browser: 'M3 4h18v16H3z M9 4v16',
+power: 'M12 3v8 M7.5 6.5a7 7 0 1 0 9 0',
+lock: 'M6 11h12v9H6z M8.5 11V8a3.5 3.5 0 0 1 7 0v3',
+doc: 'M8 3h11v15H8z M5 6v15h11',
+probe: 'M3 12h4l2-5 3 10 2-5h7'
+};
+return {
+big: [
+{ icon: ic.browser, label: 'Formcraft\nBrowser', fill: '#1F6FEB', stroke: '#FFFFFF' },
+{ icon: ic.power, label: 'Claude\nservice', fill: '#FFFFFF', stroke: '#1F6FEB' }
+],
+small: [{ icon: ic.lock, label: 'Guard' }, { icon: ic.doc, label: 'Log' }, { icon: ic.probe, label: 'Probe' }]
+};
+}
+}
+</script>
+</body>
+</html>

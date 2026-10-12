@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Roadmap to an all-round plugin</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F6FEB}a:hover{color:#1556BD}
+</style>
+</helmet>
+<div style="width: 1440px; height: 810px; box-sizing: border-box; padding: 36px 56px; background: #F6F7F9; color: #1A1D21; font-family: 'IBM Plex Sans', sans-serif; display: flex; flex-direction: column; gap: 18px">
+  <div>
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; color: #4A515C">Roadmap</div>
+    <h2 style="margin: 8px 0 0; font-size: 36px; line-height: 1.08; font-weight: 700; letter-spacing: -1px">From family factory to an all-round Formcraft BIM plugin</h2>
+  </div>
+
+  <div style="background: #FFFFFF; border: 1px solid #DDE1E6; border-radius: 8px; overflow: hidden; font-size: 13px; line-height: 1.4">
+    <div style="display: grid; grid-template-columns: 210px 92px minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) 62px; gap: 14px; align-items: center; padding: 8px 14px; background: #EEF0F3; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; letter-spacing: 1px; text-transform: uppercase; color: #4A515C">
+      <span>Capability</span><span>Status</span><span>Through Claude today</span><span>In the kit, not yet in Claude</span><span>Planned</span><span>Phase</span>
+    </div>
+    <sc-for list="{{rows}}" as="r" hint-placeholder-count="9">
+      <div style="display: grid; grid-template-columns: 210px 92px minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) 62px; gap: 14px; align-items: center; min-height: 42px; padding: 4px 14px; border-top: 1px solid #EEF0F3">
+        <span style="font-size: 14px; font-weight: 600">{{r.cap}}</span>
+        <span><span style="display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11.5px; font-weight: 500; background: {{r.chipBg}}; color: {{r.chipFg}}">{{r.status}}</span></span>
+        <span style="color: {{r.todayFg}}">{{r.today}}</span>
+        <span style="color: #3B424D">{{r.kit}}</span>
+        <span style="color: #1A1D21">{{r.planned}}</span>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: #1556BD">{{r.phase}}</span>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px">
+    <sc-for list="{{phases}}" as="p" hint-placeholder-count="6">
+      <div style="background: {{p.bg}}; border: 1px solid {{p.border}}; border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: {{p.tagFg}}">{{p.tag}}</div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 500; color: {{p.fg}}">{{p.tool}}</div>
+        <div style="font-size: 12.5px; line-height: 1.4; color: {{p.body}}">{{p.text}}</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="margin-top: -8px; font-size: 12.5px; color: #5B6270">Size: S small · M medium · L large. Phase 1 changes nothing in a model, so it can start on live projects straight away.</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":810}}'>
+class Component extends DCLogic {
+renderVals() {
+const K = { Works: ['#E6F4EA', '#1E6B34'], Partial: ['#E8F0FE', '#1556BD'], 'In kit': ['#FFF4E0', '#6B4100'], New: ['#EEF0F3', '#1A1D21'] };
+const row = (cap, status, today, kit, planned, phase) => ({
+cap, status, today, kit, planned, phase, chipBg: K[status][0], chipFg: K[status][1],
+todayFg: today === '—' ? '#8A919C' : '#1A1D21'
+});
+const rows = [
+row('Naming conventions', 'Partial', 'File names checked by fmc_file: models, families, templates', 'fmc_name_check.py (files on disk)', 'fmc_qa naming: views, sheets, levels, worksets, types', '1'),
+row('Shared parameter binding', 'Partial', 'Into families, during fmc_family build', 'FMC_BindSharedParameters (Dynamo)', 'fmc_project bind_parameters into templates and projects', '2'),
+row('Keynote syncing', 'In kit', '—', 'FMC_Keynotes.txt · FMC_SyncMasterData (Dynamo)', 'fmc_sync keynotes: path set, type keys checked', '3'),
+row('Model linking', 'New', '—', '— (5_LinkedLoads only reads loads)', 'fmc_link: shared coordinates, pin, workset, audit', '4'),
+row('Templates and setup', 'Partial', 'create_from_template with the name check', 'fmc_new_project.py · 1_SetupElectrical', 'fmc_project setup · fmc_template view templates, filters, schedules', '2 · 5'),
+row('Sheets', 'In kit', '—', '2_CreateSheets · 3_SheetQA (pyRevit)', 'fmc_project create_sheets · fmc_qa sheets', '1 · 2'),
+row('QA and model health', 'In kit', 'Model statistics (read-only)', 'FMC_ModelHealth · 4_ProjectMetrics · IDS files', 'fmc_qa: one report against the Manual', '1'),
+row('Families', 'Works', 'fmc_family plan · build · load_test', 'Register · specs · chain-test projects', 'Unchanged; geometry stays by hand', '—'),
+row('Safety', 'Works', 'Live-model lock · dry run · nothing deleted · log', '—', 'Lock gains a Setup class for templates and new projects', 'all')
+];
+const ph = (tag, tool, text) => ({ tag, tool, text, bg: '#FFFFFF', border: '#DDE1E6', fg: '#1556BD', body: '#3B424D', tagFg: '#5B6270' });
+const phases = [
+Object.assign(ph('PHASE 1 · M', 'fmc_qa', 'Read-only audits and one report. Safe on live models.'), { bg: '#1F6FEB', border: '#1F6FEB', fg: '#FFFFFF', body: '#E8F0FE', tagFg: '#D2E2FD' }),
+ph('PHASE 2 · M', 'fmc_project', 'Bind parameters, keynote file, electrical settings, sheets.'),
+ph('PHASE 3 · S', 'fmc_sync', 'Master data and keynotes into types.'),
+ph('PHASE 4 · M', 'fmc_link', 'Link by shared coordinates, pin, audit.'),
+ph('PHASE 5 · L', 'fmc_template', 'View templates, filters and schedules from Base.'),
+ph('PHASE 6 · S', 'Setup button', 'One pane button chains 2 to 5 and ends with QA.')
+];
+return { rows, phases };
+}
+}
+</script>
+</body>
+</html>

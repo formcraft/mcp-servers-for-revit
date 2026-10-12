@@ -43,6 +43,17 @@ lives in `Z:\00_Standards\` and in the claude.ai Project "REVIT MCP".
 - The pane in Revit runs the same `fmc_file` and `fmc_family` code through `build/fmc/cli.js`, so it follows these
   rules too. Rows in `FMC_MCP_FileLog.csv` may come from the user's clicks in the pane as well as from Claude.
 
+## Developing this fork (Claude Code)
+- **Start with `docs/fmc/ROADMAP.md`.** It is the agreed plan for the all-round plugin: phase order, the pattern every
+  tool follows (server check → dry run → one Revit handler → log → pane CLI), the new Setup lock class, and open
+  decisions D1 to D3. Build phases in order; don't start a phase before the previous one ran on the user's PC.
+- Pane design: `docs/fmc/design/HANDOFF_NEXT.md` (changes since r1) and `HANDOFF.md` (r1). The boards in
+  `docs/fmc/design/project/` are design references, not code.
+- Branches: `fmc/file-tools-and-guard` (PR #1, base) ← `fmc/formcraft-browser` (PR #2, the pane). Merge the base
+  forward into the pane branch after each base change. `main` is upstream until PR #1 is merged.
+- Never decide D1 (setup on live projects) in code: until the BIM Manager decides, live projects are Read only.
+- Kit data comes from the kit, never from code: a missing value is a kit change request.
+
 ## Keep tokens low
 - Prefer one batch call over many small ones; ask for summaries, not element dumps.
 - The FMC tool profile hides upstream tools Formcraft does not use (`FMC_TOOL_PROFILE=full` restores them).

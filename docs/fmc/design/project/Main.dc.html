@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Formcraft Revit MCP cover</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F6FEB}a:hover{color:#1556BD}
+</style>
+</helmet>
+<div style="width: 1440px; height: 810px; box-sizing: border-box; padding: 80px 96px 72px; background: #F6F7F9; color: #1A1D21; font-family: 'IBM Plex Sans', sans-serif; display: flex; flex-direction: column">
+  <div style="display: flex; align-items: center; gap: 14px">
+    <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="{{accent}}"></circle><circle cx="20" cy="20" r="10" fill="none" stroke="#FFFFFF" stroke-width="2.5"></circle><circle cx="20" cy="20" r="4.5" fill="#FFFFFF"></circle></svg>
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; color: #4A515C">Formcraft for Revit 2025</div>
+  </div>
+  <h1 style="margin: 40px 0 0; font-size: 104px; line-height: 1; font-weight: 700; letter-spacing: -3px">Claude in Revit</h1>
+  <p style="margin: 28px 0 0; max-width: 940px; font-size: 26px; line-height: 1.4; color: #3B424D">Formcraft's fork of the Revit MCP server. Claude builds and checks the kit (families, chain tests, QA) and reads live models, inside the folder rules of the Formcraft BIM Manual, from a pane docked beside the Project Browser.</p>
+  <div style="margin-top: 56px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px">
+    <div style="border-top: 3px solid {{accent}}; padding-top: 16px">
+      <div style="font-size: 22px; font-weight: 600">Guarded files</div>
+      <div style="margin-top: 6px; font-size: 17px; line-height: 1.45; color: #4A515C">Create, save and archive only in WIP and staging. Dry run first, nothing deleted, every action logged.</div>
+    </div>
+    <div style="border-top: 3px solid {{accent}}; padding-top: 16px">
+      <div style="font-size: 22px; font-weight: 600">Family builder</div>
+      <div style="margin-top: 6px; font-size: 17px; line-height: 1.45; color: #4A515C">Data-shell families from the kit's specs in batches of 25, then a load test in the chain-test project.</div>
+    </div>
+    <div style="border-top: 3px solid {{accent}}; padding-top: 16px">
+      <div style="font-size: 22px; font-weight: 600">Live-model lock</div>
+      <div style="margin-top: 6px; font-size: 17px; line-height: 1.45; color: #4A515C">On live projects Claude reads and reports. Modelling stays with assessed modellers.</div>
+    </div>
+  </div>
+  <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end">
+    <div style="display: flex; gap: 10px">
+      <span style="padding: 6px 12px; border: 1px solid #C9CED6; border-radius: 999px; font-size: 14px; color: #3B424D; background: #FFFFFF">fmc_file</span>
+      <span style="padding: 6px 12px; border: 1px solid #C9CED6; border-radius: 999px; font-size: 14px; color: #3B424D; background: #FFFFFF">fmc_family</span>
+      <span style="padding: 6px 12px; border: 1px solid #C9CED6; border-radius: 999px; font-size: 14px; color: #3B424D; background: #FFFFFF">Formcraft Browser</span>
+      <span style="padding: 6px 12px; border: 1px solid #C9CED6; border-radius: 999px; font-size: 14px; color: #3B424D; background: #FFFFFF">fmc_guard.json</span>
+    </div>
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #5B6270">formcraft/mcp-servers-for-revit · fmc/file-tools-and-guard</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#1F6FEB","options":["#1F6FEB","#1A1D21","#0B5CAD"]},"$preview":{"width":1440,"height":810}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#1F6FEB' };
+}
+}
+</script>
+</body>
+</html>
