@@ -122,6 +122,26 @@
       "commandName": "create_dimensions",
       "description": "Create dimension annotations between elements or points in the current view",
       "assemblyPath": "RevitMCPCommandSet.dll"
+    },
+    {
+      "commandName": "fmc_document_info",
+      "description": "Formcraft: open documents and the active document",
+      "assemblyPath": "RevitMCPCommandSet.dll"
+    },
+    {
+      "commandName": "fmc_create_document",
+      "description": "Formcraft: create a family, project or template from a template and save it",
+      "assemblyPath": "RevitMCPCommandSet.dll"
+    },
+    {
+      "commandName": "fmc_save_document_as",
+      "description": "Formcraft: save an open non-workshared document to a checked path",
+      "assemblyPath": "RevitMCPCommandSet.dll"
+    },
+    {
+      "commandName": "fmc_close_document",
+      "description": "Formcraft: close an open document that is not active",
+      "assemblyPath": "RevitMCPCommandSet.dll"
     }
   ]
 }

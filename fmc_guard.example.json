@@ -1,0 +1,22 @@
+{
+  "write_roots": [
+    "Z:\\Projects\\*\\01_WIP",
+    "Z:\\00_Standards\\04_Families\\_Staging",
+    "Z:\\00_Standards\\04_Families\\_ChainTests",
+    "Z:\\00_Standards\\06_Templates\\_Staging"
+  ],
+  "template_roots": [
+    "C:\\ProgramData\\Autodesk\\RVT 2025\\Family Templates",
+    "C:\\ProgramData\\Autodesk\\RVT 2025\\Templates",
+    "Z:\\00_Standards\\06_Templates"
+  ],
+  "library_roots": [
+    "Z:\\00_Standards\\04_Families\\_Staging",
+    "Z:\\00_Standards\\04_Families\\_ChainTests",
+    "Z:\\00_Standards\\06_Templates\\_Staging"
+  ],
+  "blocked_segments": ["02_Shared", "03_Published", "04_Archive", "05_Incoming"],
+  "live_model_lock": true,
+  "reports_dir": "%USERPROFILE%\\FMC_Reports",
+  "max_backups": 3
+}

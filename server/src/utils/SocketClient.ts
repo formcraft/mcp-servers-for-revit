@@ -1,4 +1,5 @@
 import * as net from "net";
+import { WRITE_COMMANDS, liveLockVerdict, loadConfig } from "../fmc/policy.js";
 
 export class RevitClientConnection {
   host: string;
@@ -90,7 +91,33 @@ export class RevitClientConnection {
     }
   }
 
-  public sendCommand(command: string, params: any = {}): Promise<any> {
+  /**
+   * Sends a command to Revit. Model-changing commands first pass the Formcraft live-model lock
+   * (server/src/fmc/policy.ts): they are refused when the active document is a live project model.
+   * The lock fails closed: if the active document cannot be read, the command is not sent.
+   */
+  public async sendCommand(command: string, params: any = {}): Promise<any> {
+    if (WRITE_COMMANDS.has(command)) {
+      const { config } = loadConfig();
+      if (config.live_model_lock) {
+        let info: any;
+        try {
+          info = await this.sendRaw("fmc_document_info", {});
+        } catch (error) {
+          throw new Error(
+            "FMC live-model lock: could not read the active document, so the command was not sent. " +
+              "Is the Formcraft command set (fmc_document_info) installed? " +
+              (error instanceof Error ? error.message : String(error))
+          );
+        }
+        const verdict = liveLockVerdict(info?.active, config);
+        if (!verdict.ok) throw new Error(verdict.reasons.join(" "));
+      }
+    }
+    return this.sendRaw(command, params);
+  }
+
+  public sendRaw(command: string, params: any = {}): Promise<any> {
     return new Promise((resolve, reject) => {
       try {
         if (!this.isConnected) {

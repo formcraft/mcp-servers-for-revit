@@ -1,0 +1,48 @@
+name: FMC build (Revit 2025)
+
+on:
+  push:
+    branches: [main, "fmc/**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build and test the MCP server
+        working-directory: server
+        run: |
+          npm ci
+          npm run build
+          npm test
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build plugin and command set for Revit 2025
+        run: dotnet build mcp-servers-for-revit.sln -c "Release R25"
+
+      - name: Package the Revit 2025 add-in
+        shell: pwsh
+        run: |
+          $addin = Get-ChildItem -Directory -Path plugin\bin -Filter "AddIn 2025*" | Select-Object -First 1
+          New-Item -ItemType Directory -Force -Path out | Out-Null
+          Copy-Item plugin\mcp-servers-for-revit.addin out\
+          Copy-Item -Recurse "$($addin.FullName)\revit_mcp_plugin" out\
+          Copy-Item fmc_guard.example.json out\
+          New-Item -ItemType Directory -Force -Path out\server | Out-Null
+          Copy-Item -Recurse server\build out\server\build
+          Copy-Item server\package.json, server\package-lock.json out\server\
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fmc-revit2025-addin
+          path: out
