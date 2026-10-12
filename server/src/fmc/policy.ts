@@ -112,14 +112,30 @@ export function isInside(target: string, root: string): boolean {
 
 export interface Verdict { ok: boolean; reasons: string[] }
 
+/**
+ * Project family (decision D4, 12 Oct 2026): [Project]_[Role]_[CategoryToken]_[Description].rfa, e.g.
+ * F26001_E_ElecFixture_SocketDouble.rfa. The project code follows Manual 4.1 (2-6 characters A-Z/0-9) and is never
+ * "FMC", which marks library families. Returns null for any other name.
+ */
+export function projectFamily(base: string): { project: string; role: string } | null {
+  const m = /^([A-Z0-9]{2,6})_([A-Z]{1,2})_[A-Za-z0-9]+(_[A-Za-z0-9]+)+\.rfa$/.exec(base);
+  if (!m || m[1] === "FMC") return null;
+  return { project: m[1], role: m[2] };
+}
+
 export function nameProblems(file: string): string[] {
   const base = win.basename(file);
   const ext = win.extname(base).toLowerCase();
   const out: string[] = [];
   if (norm(file).length >= 200) out.push(`Full path is ${norm(file).length} characters; Manual 4.1 keeps it under 200`);
   if (ext === ".rfa") {
-    if (!/^FMC_[A-Za-z0-9]+(_[A-Za-z0-9]+)+\.rfa$/.test(base))
-      out.push(`Family file ${base} does not follow FMC_[Role]_[CategoryToken]_[Description].rfa (Manual 4.6)`);
+    const project = projectFamily(base);
+    if (project) {
+      if (!ROLE_CODES.includes(project.role)) out.push(`Role code ${project.role} in ${base} is not in Manual 4.3`);
+    } else if (!/^FMC_[A-Za-z0-9]+(_[A-Za-z0-9]+)+\.rfa$/.test(base)) {
+      out.push(`Family file ${base} follows neither FMC_[Role]_[CategoryToken]_[Description].rfa (library, Manual 4.6) ` +
+        "nor [Project]_[Role]_[CategoryToken]_[Description].rfa (project family, decision D4)");
+    }
   } else if (ext === ".rte") {
     if (!/^FMC_(Base|[A-Z]{1,2})_Template_v\d+\.\d+\.rte$/.test(base))
       out.push(`Template ${base} does not follow FMC_<Role>_Template_v<version>.rte (Manual 9.10)`);
@@ -151,7 +167,16 @@ export function checkWritePath(target: string, cfg: GuardConfig, opts: { checkNa
       ? `Not inside an allowed write folder: ${cfg.write_roots.join("; ")}`
       : "No write folders are configured (write_roots is empty in fmc_guard.json)");
   }
-  if (opts.checkName !== false) reasons.push(...nameProblems(target));
+  if (opts.checkName !== false) {
+    reasons.push(...nameProblems(target));
+    // D4: project families live in the project's WIP (01_WIP\<Role>\Families), never in the kit library.
+    if (projectFamily(win.basename(target))) {
+      if (cfg.library_roots.some((r) => isInside(target, r)))
+        reasons.push("A project family does not go into the kit library; save it in the project's 01_WIP\\<Role>\\Families (decision D4)");
+      else if (!segs.includes("01_wip"))
+        reasons.push("A project family is saved in the project's 01_WIP\\<Role>\\Families (decision D4)");
+    }
+  }
   return { ok: reasons.length === 0, reasons };
 }
 

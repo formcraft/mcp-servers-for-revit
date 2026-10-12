@@ -12,7 +12,9 @@ The spec behind it is `docs/fmc/ROADMAP.md`.
 | `PaneNext.dc.html` | **new** | The next pane, clickable: Setup, QA, Links, Sync, Families, Activity, with a template, new project or live project switch |
 | `SetupFlow.dc.html` | **new** | The new-project setup chain and the three lock classes |
 | `NewTools.dc.html` | **new** | The five new tools: actions, lock class, what each replaces, what stays human |
-| `Roadmap.dc.html` | **new** | Capability matrix and phases |
+| `Roadmap.dc.html` | **new** | Capability matrix and phases (v2 order) |
+| `ProjectStart.dc.html` | **new (v9)** | Project start form: project folder (D5), details, roles, family set, D1 toggle, preview |
+| `FamilyRecipes.dc.html` | **new (v9)** | Family recipes: description, image or need → JSON → check → build; inject; project batches (D4) |
 | `Main`, `Ribbon`, `McpStates`, `Flow`, `Tools` | unchanged | As r1 |
 
 `../tokens.json` is unchanged: same colours, type and radii.
@@ -57,7 +59,40 @@ Add each section when its tool exists, not before. A section without a tool behi
 - **Notes box:** blue (#E8F0FE / #1556BD) for information, amber (#FFF4E0 / #6B4100) for a limit, grey (#EEF0F3 /
   #4A515C) for neutral.
 
+## C3: "Claude in shared models" toggle (decision D1; build with the Setup lock class)
+
+- **Placement.** A switch on the status strip, under the active-document card. Its label is
+  "Claude in shared models". It shows on every document but matters only for workshared or live ones.
+- **Off (default).** A shared or live model shows red "Claude reads and reports", and its Setup buttons are disabled
+  with the footer note "Shared model: turn on Claude in shared models".
+- **On.** The card turns amber (#FFF4E0 / #6B4100) with "Setup tools open in a shared model: sync with central
+  yourself". Model buttons stay disabled.
+- **Storage.** The pane writes `claude_in_shared_models` into `fmc_guard.json` and logs a row
+  (`guard_toggle, on|off`). No server tool can write that key.
+- **Board.** `PaneNext.dc.html`: choose "Live project" to see both states.
+
+## C4: project start form (phase 4)
+
+The board is `ProjectStart.dc.html`. Fields, top to bottom:
+
+1. **Project folder.** Folder picker (decision D5): the user creates the folder, and the tree is built inside it.
+2. **Project code and short name.** Checked live against Manual 4.1.
+3. **Client, address and stage.**
+4. **Roles.** Toggle chips, one per role.
+5. **Originator, volume and level.**
+6. **Project family set.** Optional recipes and tables.
+7. **"Claude in shared models".** The same toggle as C3.
+
+Under the fields, a preview lists the folders and model names that will be made. Footer: Plan, then Start (dry run).
+Each chain step shows its dry run and can stop the chain.
+
+## C5: naming text for D4 (now)
+
+`plugin/UI/FmcDialogs.cs` (new-from-template dialog) says families follow `FMC_[Role]_[CategoryToken]_[Description].rfa`.
+Add: "or, for a project family, `[Project]_[Role]_[CategoryToken]_[Description].rfa` saved in the project's
+`01_WIP\<Role>\Families`". The server already enforces the rule (`policy.ts projectFamily`).
+
 ## Not decided
 
-- **D1 (BIM Manager):** setup on live projects. Until decided, Setup buttons are disabled on live projects.
+- **D2** (retire the old scripts) and **D3** (view and level naming).
 - The values on the boards (files, counts, log rows) are sample data.

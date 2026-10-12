@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   DEFAULT_CONFIG, GuardConfig, archivePlan, checkTemplatePath, checkWritePath, csvLine, isInside,
-  liveLockVerdict, loadConfig, nameProblems, WRITE_COMMANDS,
+  liveLockVerdict, loadConfig, nameProblems, projectFamily, WRITE_COMMANDS,
 } from "./policy.js";
 
 const cfg: GuardConfig = {
@@ -60,6 +60,21 @@ test("names follow Manual 4.1, 4.6 and 9.10", () => {
   assert.ok(nameProblems("Z:\\a\\Water Heater.rfa").length);
   assert.ok(nameProblems("Z:\\a\\notes.txt").length);
   assert.ok(nameProblems("Z:\\" + "a\\".repeat(100) + "FMC_A_Door_X.rfa").some((p) => /200/.test(p)));
+});
+
+test("project families (D4): [Project]_[Role]_[CategoryToken]_[Description].rfa, saved in the project's WIP only", () => {
+  assert.deepEqual(nameProblems("Z:\\a\\F26001_E_ElecFixture_SocketDouble.rfa"), []);
+  assert.deepEqual(projectFamily("F26001_E_ElecFixture_SocketDouble.rfa"), { project: "F26001", role: "E" });
+  assert.equal(projectFamily("FMC_E_ElecFixture_SocketDouble.rfa"), null, "FMC_ marks a library family");
+  assert.ok(nameProblems("Z:\\a\\F26001_X_ElecFixture_Socket.rfa").some((p) => /Role code X/.test(p)));
+  assert.ok(nameProblems("Z:\\a\\F26-001_E_ElecFixture_Socket.rfa").length, "project code with a hyphen is rejected");
+  assert.ok(nameProblems("Z:\\a\\F26001_E_Socket.rfa").length, "needs a category token and a description");
+  const wip = "Z:\\Projects\\F26001_Pilot\\01_WIP\\E\\Families\\F26001_E_ElecFixture_SocketDouble.rfa";
+  assert.ok(checkWritePath(wip, cfg).ok);
+  const lib = checkWritePath("Z:\\00_Standards\\04_Families\\_Staging\\E\\F26001_E_ElecFixture_SocketDouble.rfa", cfg);
+  assert.match(lib.reasons.join(" "), /does not go into the kit library/);
+  const shared = checkWritePath("Z:\\Projects\\F26001_Pilot\\02_Shared\\E\\F26001_E_ElecFixture_SocketDouble.rfa", cfg);
+  assert.equal(shared.ok, false);
 });
 
 test("templates come from template folders only", () => {
