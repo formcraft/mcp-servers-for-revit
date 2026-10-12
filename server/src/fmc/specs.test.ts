@@ -16,9 +16,10 @@ const cfg: GuardConfig = {
   write_roots: ["Z:\\00_Standards\\04_Families\\_Staging"],
   library_roots: ["Z:\\00_Standards\\04_Families\\_Staging", "Z:\\00_Standards\\04_Families\\_ChainTests"],
 };
+// The Revit 2025 template files the pilot families resolve to (fmc_family_specs.TEMPLATE_MAP).
 const templates = new Set([
-  "Metric Mechanical Equipment face based.rft", "Metric Mechanical Equipment.rft", "Metric Electrical Fixture face based.rft",
-  "Metric Casework.rft", "Metric Specialty Equipment face based.rft", "Metric Title Block.rft", "Metric Electrical Equipment.rft",
+  "Metric Generic Model face based.rft", "Metric Mechanical Equipment.rft", "Metric Casework.rft",
+  "Titleblocks\\New Size metric.rft", "Metric Electrical Equipment.rft",
 ].map((t) => path.win32.join(cfg.family_template_dir, t).toLowerCase()));
 const exists = (p: string) => templates.has(p.toLowerCase());
 const plan = (name: string, extra: Partial<Parameters<typeof planFamily>[1]> = {}) =>
@@ -66,6 +67,20 @@ test("vanity: nested basin is a note, not a connector the builder fakes", () => 
   assert.equal(p.connectors.length, 0);
   assert.equal(p.geometry, "none");
   assert.ok(p.notes.some((n) => /Nested family FMC_P_PlumbingFixture_Basin/.test(n)));
+});
+
+test("face-based MEP devices use the Generic Model face based template and get their category set", () => {
+  const heater = plan("FMC_P_MechEq_WaterHeater_Instant");
+  assert.match(heater.template_path, /Metric Generic Model face based\.rft$/);
+  assert.equal(heater.set_category, "OST_MechanicalEquipment");
+  assert.equal(plan("FMC_E_ElecFixture_PowerConnection").set_category, "OST_ElectricalFixtures");
+  assert.equal(plan("FMC_FP_SpecEq_Extinguisher").set_category, "OST_SpecialityEquipment");
+  assert.equal(plan("FMC_P_MechEq_BoosterPumpSet").set_category, null, "a matching template keeps its own category");
+  assert.match(plan("FMC_TB_Panel_SiteData").template_path, /Titleblocks\\New Size metric\.rft$/);
+});
+
+test("every pilot family is ready once the Revit 2025 templates exist", () => {
+  for (const f of specs.families) assert.deepEqual(plan(f.family).problems, [], f.family);
 });
 
 test("single-phase board carries its Part Type from the register", () => {

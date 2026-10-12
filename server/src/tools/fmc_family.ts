@@ -34,6 +34,7 @@ function brief(p: FamilyPlan) {
     connectors: p.connectors.map((c) => [c.domain, c.system, c.direction ?? c.role].filter(Boolean).join(" ")),
     types: p.types.length,
     part_type: p.part_type ?? undefined,
+    category_set_to: p.set_category ?? undefined,
     problems: p.problems.length ? p.problems : undefined,
     notes: p.notes.length ? p.notes : undefined,
   };

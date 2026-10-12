@@ -30,7 +30,7 @@ export function parseSharedParameters(text: string): Map<string, SpParam> {
 export interface SpecConnector { domain: string; [key: string]: unknown }
 export interface FamilySpec {
   family: string; role: string; category: string; base_category: string; template: string;
-  template_file: string | null; host: string; priority: string; types: string[];
+  template_file: string | null; set_category?: string | null; host: string; priority: string; types: string[];
   connectors: SpecConnector[] | null; packs: string[];
   shared_parameters: Array<{ name: string; binding: string | null; guid: string | null }>;
   family_parameters: Array<{ name: string; level: string; rule: string }>;
@@ -66,6 +66,8 @@ const MEP_DOMAINS = new Set(["Electrical", "Piping", "Duct", "ELV"]);
 export interface FamilyPlan {
   family: string; role: string; category: string;
   template_path: string; save_path: string;
+  /** BuiltInCategory the builder sets when the template is a stand-in (Generic Model, Generic Tag) */
+  set_category: string | null;
   shared_parameters: Array<{ name: string; guid: string; group: string; datatype: string; instance: boolean }>;
   family_parameters: Array<{ name: string; level: string; rule: string }>;
   connectors: SpecConnector[];
@@ -127,7 +129,7 @@ export function planFamily(spec: FamilySpec, ctx: PlanContext): FamilyPlan {
 
   return {
     family: spec.family, role: spec.role, category: spec.category,
-    template_path: templatePath, save_path: savePath,
+    template_path: templatePath, save_path: savePath, set_category: spec.set_category ?? null,
     shared_parameters: shared, family_parameters: spec.family_parameters ?? [],
     connectors: connectors.filter((c) => !(c.domain === "Electrical" && c.role === "switch")),
     part_type: partType, types,
