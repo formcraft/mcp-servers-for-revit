@@ -1,0 +1,165 @@
+<UserControl x:Class="revit_mcp_plugin.UI.FormcraftBrowserPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             MinWidth="220" FontFamily="Segoe UI" FontSize="12"
+             Background="{DynamicResource Bg}" Foreground="{DynamicResource Text}">
+    <UserControl.Resources>
+        <!-- Light theme values; ApplyTheme() swaps these brushes for Revit's dark theme. -->
+        <SolidColorBrush x:Key="Bg" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="Surface" Color="#F4F5F7"/>
+        <SolidColorBrush x:Key="Border" Color="#DADDE2"/>
+        <SolidColorBrush x:Key="Text" Color="#1B2532"/>
+        <SolidColorBrush x:Key="Muted" Color="#5B6573"/>
+        <SolidColorBrush x:Key="Good" Color="#2E7D32"/>
+        <SolidColorBrush x:Key="Warn" Color="#A15C00"/>
+        <SolidColorBrush x:Key="Bad" Color="#C62828"/>
+        <SolidColorBrush x:Key="Hover" Color="#E6E9EE"/>
+
+        <Style x:Key="Section" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
+            <Setter Property="Margin" Value="0,14,0,6"/>
+        </Style>
+        <Style x:Key="Small" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Foreground" Value="{DynamicResource Text}"/>
+            <Setter Property="Background" Value="{DynamicResource Surface}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Border}"/>
+            <Setter Property="Padding" Value="10,3"/>
+            <Setter Property="Margin" Value="0,0,6,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="B" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1" CornerRadius="3" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="B" Property="Background" Value="{DynamicResource Hover}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="B" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource Surface}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Border}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="10,8"/>
+        </Style>
+    </UserControl.Resources>
+
+    <DockPanel>
+        <!-- Footer: always visible -->
+        <Border DockPanel.Dock="Bottom" BorderBrush="{DynamicResource Border}" BorderThickness="0,1,0,0" Padding="10,8,4,2">
+            <WrapPanel>
+                <Button Content="Command settings…" Click="OpenSettings_Click" ToolTip="Enable or disable MCP commands"/>
+                <Button Content="Logs" Click="OpenLogs_Click" ToolTip="Open the add-in's log folder"/>
+            </WrapPanel>
+        </Border>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="10,4,10,10">
+
+                <!-- MCP server -->
+                <TextBlock Text="MCP SERVER" Style="{StaticResource Section}"/>
+                <Border Style="{StaticResource Card}">
+                    <DockPanel>
+                        <Button x:Name="ServerButton" DockPanel.Dock="Right" Margin="6,0,0,0" VerticalAlignment="Center"
+                                Content="Start" Click="ServerButton_Click"/>
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse x:Name="ServerDot" Width="8" Height="8" Margin="0,0,6,0" VerticalAlignment="Center" Fill="{DynamicResource Muted}"/>
+                                <TextBlock x:Name="ServerText" Text="Stopped" FontWeight="SemiBold"/>
+                            </StackPanel>
+                            <TextBlock x:Name="ServerDetail" Style="{StaticResource Small}" Margin="14,2,0,0"
+                                       Text="Start it so Claude can reach Revit"/>
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+
+                <!-- Active document and live-model lock -->
+                <TextBlock Text="ACTIVE DOCUMENT" Style="{StaticResource Section}"/>
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock x:Name="DocTitle" Text="No document open" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                        <TextBlock x:Name="DocKind" Style="{StaticResource Small}" Margin="0,2,0,0"/>
+                        <TextBlock x:Name="DocPath" Style="{StaticResource Small}" Margin="0,2,0,0"/>
+                        <Border Height="1" Background="{DynamicResource Border}" Margin="0,8"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse x:Name="LockDot" Width="8" Height="8" Margin="0,0,6,0" VerticalAlignment="Center" Fill="{DynamicResource Muted}"/>
+                            <TextBlock x:Name="LockText" Text="Model tools: —" FontWeight="SemiBold"/>
+                        </StackPanel>
+                        <TextBlock x:Name="LockReason" Style="{StaticResource Small}" Margin="14,2,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Guard file -->
+                <TextBlock Text="FOLDER RULES (fmc_guard.json)" Style="{StaticResource Section}"/>
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse x:Name="GuardDot" Width="8" Height="8" Margin="0,0,6,0" VerticalAlignment="Center" Fill="{DynamicResource Muted}"/>
+                            <TextBlock x:Name="GuardText" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <TextBlock x:Name="GuardDetail" Style="{StaticResource Small}" Margin="14,2,0,0"/>
+                        <Expander x:Name="WriteExpander" Margin="0,8,0,0" Foreground="{DynamicResource Text}">
+                            <ItemsControl x:Name="WriteList" Margin="16,2,0,0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate><TextBlock Text="{Binding}" Style="{StaticResource Small}" Margin="0,1"/></DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Expander>
+                        <Expander x:Name="LibraryExpander" Margin="0,4,0,0" Foreground="{DynamicResource Text}">
+                            <ItemsControl x:Name="LibraryList" Margin="16,2,0,0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate><TextBlock Text="{Binding}" Style="{StaticResource Small}" Margin="0,1"/></DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Expander>
+                        <WrapPanel Margin="0,8,0,-6">
+                            <Button Content="Edit rules" Click="OpenGuard_Click" ToolTip="Open fmc_guard.json in Notepad"/>
+                            <Button Content="Reports" Click="OpenReports_Click" ToolTip="Open the FMC reports folder"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Activity -->
+                <DockPanel Margin="0,14,0,6">
+                    <Button DockPanel.Dock="Right" Content="Clear" Margin="0" Padding="8,1" Click="ClearActivity_Click"/>
+                    <TextBlock Text="RECENT MCP CALLS" Style="{StaticResource Section}" Margin="0" VerticalAlignment="Center"/>
+                </DockPanel>
+                <TextBlock x:Name="ActivityEmpty" Style="{StaticResource Small}" Text="No calls yet. They appear here as Claude works."/>
+                <ItemsControl x:Name="ActivityList">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="{DynamicResource Border}" BorderThickness="0,0,0,1" Padding="0,4" ToolTip="{Binding Tip}">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <TextBlock DockPanel.Dock="Right" Text="{Binding Right}" Style="{StaticResource Small}" Margin="6,0,0,0"/>
+                                        <Ellipse Width="6" Height="6" Margin="0,0,6,0" VerticalAlignment="Center" Fill="{Binding Dot}"/>
+                                        <TextBlock Text="{Binding Method}" TextTrimming="CharacterEllipsis"/>
+                                    </DockPanel>
+                                    <TextBlock Text="{Binding Error}" Visibility="{Binding ErrorVisibility}" Foreground="{DynamicResource Bad}"
+                                               FontSize="11" TextWrapping="Wrap" Margin="12,2,0,0" MaxHeight="44"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</UserControl>
