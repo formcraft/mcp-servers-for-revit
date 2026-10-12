@@ -31,6 +31,14 @@ export interface GuardConfig {
   reports_dir: string;
   /** Number of .000N backups Revit keeps on save */
   max_backups: number;
+  /** Family builder: structured specs written by the kit (_build/build_family_specs.py) */
+  specs_path: string;
+  /** Family builder: the dictionary. Shared parameters are only ever taken from this file */
+  shared_parameter_file: string;
+  /** Family builder: folder holding the Revit family templates (.rft) named in the specs */
+  family_template_dir: string;
+  /** Family builder: new families are saved to <family_staging_root>\<Role>\ (must be inside write_roots) */
+  family_staging_root: string;
 }
 
 export const DEFAULT_CONFIG: GuardConfig = {
@@ -41,6 +49,10 @@ export const DEFAULT_CONFIG: GuardConfig = {
   live_model_lock: true,
   reports_dir: "%USERPROFILE%\\FMC_Reports",
   max_backups: 3,
+  specs_path: "Z:\\00_Standards\\03_Master_Data\\FMC_Family_Specs.json",
+  shared_parameter_file: "Z:\\00_Standards\\01_Shared_Parameters\\FMC_SharedParameters.txt",
+  family_template_dir: "C:\\ProgramData\\Autodesk\\RVT 2025\\Family Templates\\English",
+  family_staging_root: "Z:\\00_Standards\\04_Families\\_Staging",
 };
 
 /** Tools that change the model. They are refused on live project models. */
@@ -48,6 +60,7 @@ export const WRITE_COMMANDS = new Set<string>([
   "create_point_based_element", "create_line_based_element", "create_surface_based_element",
   "create_level", "create_grid", "create_room", "create_dimensions", "create_structural_framing_system",
   "operate_element", "delete_element", "color_splash", "tag_walls", "tag_rooms", "send_code_to_revit",
+  "fmc_load_test_families",
 ]);
 
 export const ROLE_CODES = ["A", "S", "C", "E", "M", "P", "Q", "Z", "I", "L", "LP", "FP", "G", "W", "K", "Y"];

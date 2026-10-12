@@ -1,0 +1,654 @@
+{
+ "version": "2.2",
+ "families": [
+  {
+   "family": "FMC_TB_Panel_SiteData",
+   "role": "Z",
+   "category": "Title Blocks",
+   "base_category": "Title Blocks",
+   "template": "Metric Title Block, no border",
+   "template_file": "Metric Title Block.rft",
+   "host": "-",
+   "priority": "P1",
+   "why": "Coordinate record on Z-0005 (Manual 8.3)",
+   "types": [
+    "Standard"
+   ],
+   "connectors_text": "-",
+   "connectors": [],
+   "packs": [],
+   "shared_parameters": [
+    {
+     "name": "FMC_CRS",
+     "binding": "Project Information",
+     "guid": "75c08fae-756d-5990-867a-971efbe67604"
+    },
+    {
+     "name": "FMC_True_North_Angle",
+     "binding": "Project Information",
+     "guid": "04f41f73-25f8-5360-a416-421847071e94"
+    },
+    {
+     "name": "FMC_Benchmark",
+     "binding": "Project Information",
+     "guid": "69d60036-d7fe-57af-851f-781269a41573"
+    },
+    {
+     "name": "FMC_FFL_MSL",
+     "binding": "Project Information",
+     "guid": "db274413-7c2f-52ca-9704-2b49c8e8848f"
+    }
+   ],
+   "family_parameters": [],
+   "open_item": ""
+  },
+  {
+   "family": "FMC_I_Casework_Vanity",
+   "role": "I",
+   "category": "Casework",
+   "base_category": "Casework",
+   "template": "Metric Casework",
+   "template_file": "Metric Casework.rft",
+   "host": "Wall",
+   "priority": "P1",
+   "why": "Joinery with connectors",
+   "types": [
+    "0600",
+    "0900"
+   ],
+   "connectors_text": "Nested basin with DCW, DHW, Sanitary connectors",
+   "connectors": [
+    {
+     "domain": "Nested",
+     "family": "FMC_P_PlumbingFixture_Basin",
+     "optional": false,
+     "note": "Connectors come from the shared nested family"
+    }
+   ],
+   "packs": [],
+   "shared_parameters": [
+    {
+     "name": "FMC_Worktop_Spec",
+     "binding": "Type",
+     "guid": "dbb29109-d7be-55a5-8c12-9aca51551dc3"
+    }
+   ],
+   "family_parameters": [],
+   "open_item": ""
+  },
+  {
+   "family": "FMC_E_EQ_DB_SPN",
+   "role": "E",
+   "category": "Electrical Equipment",
+   "base_category": "Electrical Equipment",
+   "template": "Metric Electrical Equipment",
+   "template_file": "Metric Electrical Equipment.rft",
+   "host": "Wall",
+   "priority": "P1",
+   "why": "Single-phase sub-boards",
+   "types": [
+    "8",
+    "12 way"
+   ],
+   "connectors_text": "240 V 1-pole Unbalanced",
+   "connectors": [
+    {
+     "domain": "Electrical",
+     "system": "Power - Unbalanced",
+     "role": "supply",
+     "voltage": 240,
+     "poles": 1,
+     "load_class": null,
+     "part_type": "Panelboard",
+     "tag_suffix": "",
+     "power_param": null,
+     "note": ""
+    }
+   ],
+   "packs": [
+    "ASSET"
+   ],
+   "shared_parameters": [
+    {
+     "name": "FMC_Asset_Tag",
+     "binding": "Instance",
+     "guid": "da8b0833-85d1-5621-903a-8d9fbef9089d"
+    },
+    {
+     "name": "FMC_Manufacturer",
+     "binding": "Type",
+     "guid": "dc399f41-0c78-566b-bf6a-94cdba78e4fa"
+    },
+    {
+     "name": "FMC_Model_Number",
+     "binding": "Type",
+     "guid": "3278e3b0-76e8-57ec-b892-1b3b75af7dce"
+    },
+    {
+     "name": "FMC_Serial_Number",
+     "binding": "Instance",
+     "guid": "d7588945-f14a-59c0-a35d-407cdc20d4cf"
+    },
+    {
+     "name": "FMC_Install_Date",
+     "binding": "Instance",
+     "guid": "d21414d8-a409-5716-b95e-eae5708fba37"
+    },
+    {
+     "name": "FMC_Warranty_End",
+     "binding": "Instance",
+     "guid": "7c69adf7-5048-56d9-be69-67092685ee15"
+    },
+    {
+     "name": "FMC_Maintenance_Interval_Months",
+     "binding": "Type",
+     "guid": "63ed8a18-5433-5409-adcd-485640c84760"
+    },
+    {
+     "name": "FMC_OM_Link",
+     "binding": "Type",
+     "guid": "a9ccd9dc-5900-5ce2-9908-08d779a83dfc"
+    }
+   ],
+   "family_parameters": [],
+   "open_item": ""
+  },
+  {
+   "family": "FMC_E_ElecFixture_PowerConnection",
+   "role": "E",
+   "category": "Electrical Fixtures",
+   "base_category": "Electrical Fixtures",
+   "template": "Metric Electrical Fixture face based",
+   "template_file": "Metric Electrical Fixture face based.rft",
+   "host": "Face",
+   "priority": "P1",
+   "why": "Electrical end of equipment owned by another model (option B)",
+   "types": [
+    "1Ph",
+    "3Ph"
+   ],
+   "connectors_text": "240 V 1-pole or 415 V 3-pole load",
+   "connectors": [
+    {
+     "domain": "Electrical",
+     "system": "Power (per type)",
+     "role": "load",
+     "voltage": "per type",
+     "poles": "per type",
+     "per_type": {
+      "1Ph": [
+       240,
+       1
+      ],
+      "3Ph": [
+       415,
+       3
+      ]
+     },
+     "load_class": "per type",
+     "part_type": null,
+     "tag_suffix": "",
+     "power_param": null,
+     "note": "Load written by FMC_SyncLinkedLoads from the linked equipment"
+    }
+   ],
+   "packs": [
+    "TAG_MATCH"
+   ],
+   "shared_parameters": [
+    {
+     "name": "FMC_Asset_Tag",
+     "binding": "Instance",
+     "guid": "da8b0833-85d1-5621-903a-8d9fbef9089d"
+    }
+   ],
+   "family_parameters": [],
+   "open_item": ""
+  },
+  {
+   "family": "FMC_P_MechEq_BoosterPumpSet",
+   "role": "P",
+   "category": "Mechanical Equipment",
+   "base_category": "Mechanical Equipment",
+   "template": "Metric Mechanical Equipment",
+   "template_file": "Metric Mechanical Equipment.rft",
+   "host": "Level",
+   "priority": "P1",
+   "why": "Pressure boosting",
+   "types": [
+    "Duty/standby 2.2 kW"
+   ],
+   "connectors_text": "Suction and discharge (DCW); 415 V 3-phase motor",
+   "connectors": [
+    {
+     "domain": "Piping",
+     "system": "Domestic Cold Water",
+     "system_type": null,
+     "direction": "In",
+     "size_mm": null,
+     "note": "Suction"
+    },
+    {
+     "domain": "Piping",
+     "system": "Domestic Cold Water",
+     "system_type": null,
+     "direction": "Out",
+     "size_mm": null,
+     "note": "Discharge"
+    },
+    {
+     "domain": "Electrical",
+     "system": "Power - Balanced",
+     "role": "load",
+     "voltage": 415,
+     "poles": 3,
+     "load_class": "Motor",
+     "part_type": null,
+     "tag_suffix": "",
+     "power_param": "FMC_Power_W",
+     "note": "One supply to the set's control panel; duty and standby pumps alternate"
+    }
+   ],
+   "packs": [
+    "ASSET",
+    "ELEC_LOAD"
+   ],
+   "shared_parameters": [
+    {
+     "name": "FMC_Asset_Tag",
+     "binding": "Instance",
+     "guid": "da8b0833-85d1-5621-903a-8d9fbef9089d"
+    },
+    {
+     "name": "FMC_Manufacturer",
+     "binding": "Type",
+     "guid": "dc399f41-0c78-566b-bf6a-94cdba78e4fa"
+    },
+    {
+     "name": "FMC_Model_Number",
+     "binding": "Type",
+     "guid": "3278e3b0-76e8-57ec-b892-1b3b75af7dce"
+    },
+    {
+     "name": "FMC_Serial_Number",
+     "binding": "Instance",
+     "guid": "d7588945-f14a-59c0-a35d-407cdc20d4cf"
+    },
+    {
+     "name": "FMC_Install_Date",
+     "binding": "Instance",
+     "guid": "d21414d8-a409-5716-b95e-eae5708fba37"
+    },
+    {
+     "name": "FMC_Warranty_End",
+     "binding": "Instance",
+     "guid": "7c69adf7-5048-56d9-be69-67092685ee15"
+    },
+    {
+     "name": "FMC_Maintenance_Interval_Months",
+     "binding": "Type",
+     "guid": "63ed8a18-5433-5409-adcd-485640c84760"
+    },
+    {
+     "name": "FMC_OM_Link",
+     "binding": "Type",
+     "guid": "a9ccd9dc-5900-5ce2-9908-08d779a83dfc"
+    },
+    {
+     "name": "FMC_Power_W",
+     "binding": "Type",
+     "guid": "f1e5bf1d-3a44-5416-a962-710f69136c5e"
+    }
+   ],
+   "family_parameters": [
+    {
+     "name": "Voltage",
+     "level": "type",
+     "rule": "240 V or 415 V exactly, never a rounding formula (STD-002 5.3)"
+    },
+    {
+     "name": "Number of Poles",
+     "level": "type",
+     "rule": "1 or 3"
+    },
+    {
+     "name": "Power Factor",
+     "level": "type",
+     "rule": "0.9 default; motors Lagging"
+    },
+    {
+     "name": "Apparent Load",
+     "level": "type",
+     "rule": "Formula: FMC_Power_W / Power Factor"
+    }
+   ],
+   "open_item": ""
+  },
+  {
+   "family": "FMC_P_MechEq_WaterHeater_Instant",
+   "role": "P",
+   "category": "Mechanical Equipment",
+   "base_category": "Mechanical Equipment",
+   "template": "Metric Mechanical Equipment face based",
+   "template_file": "Metric Mechanical Equipment face based.rft",
+   "host": "Wall face",
+   "priority": "P1",
+   "why": "Multi-discipline product (STD-002 5.5)",
+   "types": [
+    "3 kW",
+    "6 kW"
+   ],
+   "connectors_text": "DCW in, DHW out; 3.0 kW 240 V 1-pole (Water Heater)",
+   "connectors": [
+    {
+     "domain": "Piping",
+     "system": "Domestic Cold Water",
+     "system_type": null,
+     "direction": "In",
+     "size_mm": null,
+     "note": ""
+    },
+    {
+     "domain": "Piping",
+     "system": "Domestic Hot Water",
+     "system_type": null,
+     "direction": "Out",
+     "size_mm": null,
+     "note": ""
+    },
+    {
+     "domain": "Electrical",
+     "system": "Power - Unbalanced",
+     "role": "load",
+     "voltage": 240,
+     "poles": 1,
+     "load_class": "Water Heater",
+     "part_type": null,
+     "tag_suffix": "",
+     "power_param": "FMC_Power_W",
+     "note": ""
+    }
+   ],
+   "packs": [
+    "ASSET",
+    "ELEC_LOAD"
+   ],
+   "shared_parameters": [
+    {
+     "name": "FMC_Asset_Tag",
+     "binding": "Instance",
+     "guid": "da8b0833-85d1-5621-903a-8d9fbef9089d"
+    },
+    {
+     "name": "FMC_Manufacturer",
+     "binding": "Type",
+     "guid": "dc399f41-0c78-566b-bf6a-94cdba78e4fa"
+    },
+    {
+     "name": "FMC_Model_Number",
+     "binding": "Type",
+     "guid": "3278e3b0-76e8-57ec-b892-1b3b75af7dce"
+    },
+    {
+     "name": "FMC_Serial_Number",
+     "binding": "Instance",
+     "guid": "d7588945-f14a-59c0-a35d-407cdc20d4cf"
+    },
+    {
+     "name": "FMC_Install_Date",
+     "binding": "Instance",
+     "guid": "d21414d8-a409-5716-b95e-eae5708fba37"
+    },
+    {
+     "name": "FMC_Warranty_End",
+     "binding": "Instance",
+     "guid": "7c69adf7-5048-56d9-be69-67092685ee15"
+    },
+    {
+     "name": "FMC_Maintenance_Interval_Months",
+     "binding": "Type",
+     "guid": "63ed8a18-5433-5409-adcd-485640c84760"
+    },
+    {
+     "name": "FMC_OM_Link",
+     "binding": "Type",
+     "guid": "a9ccd9dc-5900-5ce2-9908-08d779a83dfc"
+    },
+    {
+     "name": "FMC_Power_W",
+     "binding": "Type",
+     "guid": "f1e5bf1d-3a44-5416-a962-710f69136c5e"
+    }
+   ],
+   "family_parameters": [
+    {
+     "name": "Voltage",
+     "level": "type",
+     "rule": "240 V or 415 V exactly, never a rounding formula (STD-002 5.3)"
+    },
+    {
+     "name": "Number of Poles",
+     "level": "type",
+     "rule": "1 or 3"
+    },
+    {
+     "name": "Power Factor",
+     "level": "type",
+     "rule": "0.9 default; motors Lagging"
+    },
+    {
+     "name": "Apparent Load",
+     "level": "type",
+     "rule": "Formula: FMC_Power_W / Power Factor"
+    }
+   ],
+   "open_item": "Category Mechanical Equipment while other P equipment uses Plumbing Equipment; choose one rule for P-owned equipment"
+  },
+  {
+   "family": "FMC_FP_SpecEq_Extinguisher",
+   "role": "FP",
+   "category": "Specialty Equipment",
+   "base_category": "Specialty Equipment",
+   "template": "Metric Specialty Equipment face based",
+   "template_file": "Metric Specialty Equipment face based.rft",
+   "host": "Wall face",
+   "priority": "P1",
+   "why": "Portable extinguishers",
+   "types": [
+    "Water 9 L 13A",
+    "CO2 5 kg",
+    "DCP 9 kg 43A"
+   ],
+   "connectors_text": "-",
+   "connectors": [],
+   "packs": [
+    "ASSET"
+   ],
+   "shared_parameters": [
+    {
+     "name": "FMC_Asset_Tag",
+     "binding": "Instance",
+     "guid": "da8b0833-85d1-5621-903a-8d9fbef9089d"
+    },
+    {
+     "name": "FMC_Manufacturer",
+     "binding": "Type",
+     "guid": "dc399f41-0c78-566b-bf6a-94cdba78e4fa"
+    },
+    {
+     "name": "FMC_Model_Number",
+     "binding": "Type",
+     "guid": "3278e3b0-76e8-57ec-b892-1b3b75af7dce"
+    },
+    {
+     "name": "FMC_Serial_Number",
+     "binding": "Instance",
+     "guid": "d7588945-f14a-59c0-a35d-407cdc20d4cf"
+    },
+    {
+     "name": "FMC_Install_Date",
+     "binding": "Instance",
+     "guid": "d21414d8-a409-5716-b95e-eae5708fba37"
+    },
+    {
+     "name": "FMC_Warranty_End",
+     "binding": "Instance",
+     "guid": "7c69adf7-5048-56d9-be69-67092685ee15"
+    },
+    {
+     "name": "FMC_Maintenance_Interval_Months",
+     "binding": "Type",
+     "guid": "63ed8a18-5433-5409-adcd-485640c84760"
+    },
+    {
+     "name": "FMC_OM_Link",
+     "binding": "Type",
+     "guid": "a9ccd9dc-5900-5ce2-9908-08d779a83dfc"
+    },
+    {
+     "name": "FMC_Extinguisher_Rating",
+     "binding": "Type",
+     "guid": "59ff9559-a353-5172-9793-e70bce8154c9"
+    }
+   ],
+   "family_parameters": [],
+   "open_item": ""
+  },
+  {
+   "family": "FMC_FP_MechEq_FirePumpSet",
+   "role": "FP",
+   "category": "Mechanical Equipment",
+   "base_category": "Mechanical Equipment",
+   "template": "Metric Mechanical Equipment",
+   "template_file": "Metric Mechanical Equipment.rft",
+   "host": "Level",
+   "priority": "P2",
+   "why": "Fire pumps",
+   "types": [
+    "Duty + jockey"
+   ],
+   "connectors_text": "Suction and discharge (Fire Protection Wet); 415 V duty and jockey motors",
+   "connectors": [
+    {
+     "domain": "Piping",
+     "system": "Fire Protection Wet",
+     "system_type": null,
+     "direction": "In",
+     "size_mm": null,
+     "note": "Suction"
+    },
+    {
+     "domain": "Piping",
+     "system": "Fire Protection Wet",
+     "system_type": null,
+     "direction": "Out",
+     "size_mm": null,
+     "note": "Discharge"
+    },
+    {
+     "domain": "Electrical",
+     "system": "Power - Balanced",
+     "role": "load",
+     "voltage": 415,
+     "poles": 3,
+     "load_class": "Motor",
+     "part_type": null,
+     "tag_suffix": "/D",
+     "power_param": "FMC_Power_W",
+     "note": "Duty pump circuit"
+    },
+    {
+     "domain": "Electrical",
+     "system": "Power - Balanced",
+     "role": "load",
+     "voltage": 415,
+     "poles": 3,
+     "load_class": "Motor",
+     "part_type": null,
+     "tag_suffix": "/J",
+     "power_param": "FMC_Power_W_2",
+     "note": "Jockey pump circuit; FMC_Power_W_2 needs a dictionary change request"
+    }
+   ],
+   "packs": [
+    "ASSET",
+    "ELEC_LOAD"
+   ],
+   "shared_parameters": [
+    {
+     "name": "FMC_Asset_Tag",
+     "binding": "Instance",
+     "guid": "da8b0833-85d1-5621-903a-8d9fbef9089d"
+    },
+    {
+     "name": "FMC_Manufacturer",
+     "binding": "Type",
+     "guid": "dc399f41-0c78-566b-bf6a-94cdba78e4fa"
+    },
+    {
+     "name": "FMC_Model_Number",
+     "binding": "Type",
+     "guid": "3278e3b0-76e8-57ec-b892-1b3b75af7dce"
+    },
+    {
+     "name": "FMC_Serial_Number",
+     "binding": "Instance",
+     "guid": "d7588945-f14a-59c0-a35d-407cdc20d4cf"
+    },
+    {
+     "name": "FMC_Install_Date",
+     "binding": "Instance",
+     "guid": "d21414d8-a409-5716-b95e-eae5708fba37"
+    },
+    {
+     "name": "FMC_Warranty_End",
+     "binding": "Instance",
+     "guid": "7c69adf7-5048-56d9-be69-67092685ee15"
+    },
+    {
+     "name": "FMC_Maintenance_Interval_Months",
+     "binding": "Type",
+     "guid": "63ed8a18-5433-5409-adcd-485640c84760"
+    },
+    {
+     "name": "FMC_OM_Link",
+     "binding": "Type",
+     "guid": "a9ccd9dc-5900-5ce2-9908-08d779a83dfc"
+    },
+    {
+     "name": "FMC_Power_W",
+     "binding": "Type",
+     "guid": "f1e5bf1d-3a44-5416-a962-710f69136c5e"
+    },
+    {
+     "name": "FMC_Power_W_2",
+     "binding": null,
+     "guid": null
+    }
+   ],
+   "family_parameters": [
+    {
+     "name": "Voltage",
+     "level": "type",
+     "rule": "240 V or 415 V exactly, never a rounding formula (STD-002 5.3)"
+    },
+    {
+     "name": "Number of Poles",
+     "level": "type",
+     "rule": "1 or 3"
+    },
+    {
+     "name": "Power Factor",
+     "level": "type",
+     "rule": "0.9 default; motors Lagging"
+    },
+    {
+     "name": "Apparent Load",
+     "level": "type",
+     "rule": "Formula: FMC_Power_W / Power Factor"
+    }
+   ],
+   "open_item": "Second circuit (jockey) needs FMC_Power_W_2 in the dictionary (change request) and per-circuit tags in FMC_SyncLinkedLoads"
+  }
+ ]
+}

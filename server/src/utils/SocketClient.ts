@@ -96,7 +96,7 @@ export class RevitClientConnection {
    * (server/src/fmc/policy.ts): they are refused when the active document is a live project model.
    * The lock fails closed: if the active document cannot be read, the command is not sent.
    */
-  public async sendCommand(command: string, params: any = {}): Promise<any> {
+  public async sendCommand(command: string, params: any = {}, timeoutMs: number = 120000): Promise<any> {
     if (WRITE_COMMANDS.has(command)) {
       const { config } = loadConfig();
       if (config.live_model_lock) {
@@ -114,10 +114,10 @@ export class RevitClientConnection {
         if (!verdict.ok) throw new Error(verdict.reasons.join(" "));
       }
     }
-    return this.sendRaw(command, params);
+    return this.sendRaw(command, params, timeoutMs);
   }
 
-  public sendRaw(command: string, params: any = {}): Promise<any> {
+  public sendRaw(command: string, params: any = {}, timeoutMs: number = 120000): Promise<any> {
     return new Promise((resolve, reject) => {
       try {
         if (!this.isConnected) {
@@ -163,9 +163,9 @@ export class RevitClientConnection {
         setTimeout(() => {
           if (this.responseCallbacks.has(requestId)) {
             this.responseCallbacks.delete(requestId);
-            reject(new Error(`Command timed out after 2 minutes: ${command}`));
+            reject(new Error(`Command timed out after ${Math.round(timeoutMs / 1000)} s: ${command}`));
           }
-        }, 120000); // 2分钟超时
+        }, timeoutMs);
       } catch (error) {
         reject(error);
       }

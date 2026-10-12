@@ -25,6 +25,14 @@ lives in `Z:\00_Standards\` and in the claude.ai Project "REVIT MCP".
    sections, set demand factors or sign anything. It prepares, checks and reports.
 6. **Workshared models** are never saved by a tool. The user synchronises with central in Revit.
 
+## Building families (`fmc_family`)
+- Always `plan` first and show the user the one-line-per-family summary; then `build` with `dry_run: true`, then
+  `dry_run: false` after a clear yes. Families land in `_Staging\<Role>`; only the Family Librarian releases.
+- Batches of at most 25. Report every warning the build returns (load classification, formulas, shared faces):
+  they are the hand steps left for the Family Librarian, not errors to hide.
+- `load_test` runs only with `FMC_ChainTest_<Role>.rvt` from `_ChainTests` as the active document.
+- A parameter missing from the dictionary is skipped and reported. Never add it some other way.
+
 ## Data sources
 - Family specs: `Z:\00_Standards\03_Master_Data\FMC_Family_Specs.json` (connectors, parameter packs, types).
 - Shared parameters: `Z:\00_Standards\01_Shared_Parameters\FMC_SharedParameters.txt`. Never invent a

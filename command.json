@@ -142,6 +142,16 @@
       "commandName": "fmc_close_document",
       "description": "Formcraft: close an open document that is not active",
       "assemblyPath": "RevitMCPCommandSet.dll"
+    },
+    {
+      "commandName": "fmc_build_families",
+      "description": "Formcraft: build data-shell families from resolved plans (FMC_Family_Specs.json)",
+      "assemblyPath": "RevitMCPCommandSet.dll"
+    },
+    {
+      "commandName": "fmc_load_test_families",
+      "description": "Formcraft: load, place and flex staged families in the chain-test project and check connectors and parameters",
+      "assemblyPath": "RevitMCPCommandSet.dll"
     }
   ]
 }

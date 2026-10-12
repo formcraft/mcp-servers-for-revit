@@ -15,7 +15,7 @@
         "prebuild": "npm run clean",
         "build": "tsc",
         "prepublishOnly": "npm run build",
-        "test": "node --test build/fmc/policy.test.js"
+        "test": "node --test build/fmc/policy.test.js build/fmc/specs.test.js"
     },
     "files": [
         "build",
