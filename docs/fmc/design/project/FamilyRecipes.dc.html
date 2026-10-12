@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Family recipes</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F6FEB}a:hover{color:#1556BD}
+</style>
+</helmet>
+<div style="width: 1440px; height: 810px; box-sizing: border-box; padding: 40px 56px; background: #F6F7F9; color: #1A1D21; font-family: 'IBM Plex Sans', sans-serif; display: flex; flex-direction: column; gap: 22px">
+  <div>
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; color: #4A515C">Family recipes · phase 3</div>
+    <h2 style="margin: 8px 0 0; font-size: 36px; line-height: 1.08; font-weight: 700; letter-spacing: -1px">From a description, a photo or a need, to a family through JSON</h2>
+  </div>
+
+  <div style="display: flex; align-items: stretch; gap: 0">
+    <div style="width: 230px; display: flex; flex-direction: column; gap: 8px">
+      <sc-for list="{{inputs}}" as="i" hint-placeholder-count="3">
+        <div style="flex: 1; padding: 10px 12px; background: #FFFFFF; border: 1px solid #DDE1E6; border-radius: 8px">
+          <div style="font-size: 15px; font-weight: 600">{{i.title}}</div>
+          <div style="margin-top: 3px; font-size: 12.5px; line-height: 1.4; color: #3B424D">{{i.text}}</div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display: flex; align-items: center; padding: 0 6px"><svg width="26" height="20" viewBox="0 0 26 20" aria-hidden="true"><path d="M2 10 H22 M16 4 L22 10 L16 16" fill="none" stroke="#8A919C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+    <div style="width: 420px; background: #1A1D21; border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px">
+      <div style="font-size: 12px; color: #B9C0CA">Recipe · FMC_E_ElecFixture_SocketDouble.json</div>
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; line-height: 1.55; color: #E6E9EE; white-space: pre">{{json}}</div>
+    </div>
+    <div style="display: flex; align-items: center; padding: 0 6px"><svg width="26" height="20" viewBox="0 0 26 20" aria-hidden="true"><path d="M2 10 H22 M16 4 L22 10 L16 16" fill="none" stroke="#8A919C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 8px">
+      <sc-for list="{{steps}}" as="s" hint-placeholder-count="4">
+        <div style="flex: 1; padding: 9px 12px; background: {{s.bg}}; border: 1px solid {{s.border}}; border-radius: 8px">
+          <div style="display: flex; gap: 8px; align-items: baseline">
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: {{s.tagFg}}">{{s.tag}}</span>
+            <span style="font-size: 15px; font-weight: 600; color: {{s.fg}}">{{s.title}}</span>
+          </div>
+          <div style="margin-top: 3px; font-size: 12.5px; line-height: 1.4; color: {{s.body}}">{{s.text}}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px">
+    <sc-for list="{{modes}}" as="m" hint-placeholder-count="3">
+      <div style="background: #FFFFFF; border: 1px solid #DDE1E6; border-top: 4px solid {{m.color}}; border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px">
+        <div style="display: flex; align-items: baseline; gap: 8px">
+          <span style="font-size: 17px; font-weight: 700">{{m.title}}</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #1556BD">{{m.action}}</span>
+        </div>
+        <div style="font-size: 13.5px; line-height: 1.45; color: #3B424D">{{m.text}}</div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; line-height: 1.5; color: #4A515C">{{m.example}}</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="margin-top: -6px; font-size: 13px; color: #4A515C">Recipe geometry is simple and parametric: boxes, cylinders, profiles, voids, symbolic lines. Manufacturer detail and freeform shapes stay hand work. Dimensions read from a photo are estimates until a datasheet or you confirm them.</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":810}}'>
+class Component extends DCLogic {
+renderVals() {
+const inputs = [
+{ title: 'A description', text: '"Double socket, 146 wide, 86 high, mounted at 300."' },
+{ title: 'A photo or datasheet', text: 'Claude reads sizes and features; you confirm the numbers.' },
+{ title: 'A discipline need', text: 'From the register and specs: connectors, parameters, types.' }
+];
+const json = [
+'{ "family": "FMC_E_ElecFixture_SocketDouble",',
+'  "template": "Metric Generic Model face based",',
+'  "category": "OST_ElectricalFixtures",',
+'  "parameters": [',
+'    {"name": "Width", "type": "Length", "default": 146},',
+'    {"shared": "FMC_Mounting_Height_mm"},',
+'    {"shared": "FMC_Asset_Tag"} ],',
+'  "geometry": [{"extrusion": "rectangle",',
+'    "width": "Width", "height": 86, "depth": 35,',
+'    "material": "Plastic White"}],',
+'  "connectors": [{"domain": "Electrical",',
+'    "system": "Power", "face": "back"}],',
+'  "types": {"13A Double": {"Width": 146},',
+'            "13A Single": {"Width": 86}} }'
+].join('\n');
+const st = (tag, title, text) => ({ tag, title, text, bg: '#FFFFFF', border: '#DDE1E6', fg: '#1A1D21', body: '#3B424D', tagFg: '#5B6270' });
+const steps = [
+st('CHECK', 'Server check', 'Schema, dictionary parameters only, naming (FMC_ or project D4), formulas.'),
+st('DRY RUN', 'Preview', 'What will be built, one line per family; batches of 25.'),
+st('BUILD', 'Revit builds it', 'Reference planes, labelled dimensions, solids, materials, connectors, types.'),
+Object.assign(st('PEOPLE', 'Load test and release', 'Chain test, then the Family Librarian releases or promotes it.'), { bg: '#1A1D21', border: '#1A1D21', fg: '#FFFFFF', body: '#D5D9DF', tagFg: '#B9C0CA' })
+];
+const modes = [
+{ title: 'Library family', action: 'recipe_build', color: '#1F6FEB', text: 'Kit recipes in 03_Master_Data\\FMC_Family_Recipes, one per family, saved to _Staging\\<Role>.', example: 'FMC_E_ElecFixture_SocketDouble.rfa' },
+{ title: 'Inject parameters', action: 'inject', color: '#1E8E3E', text: 'Opens an existing family (manufacturer or older content), adds dictionary parameters, sets values, renames it to the standard.', example: 'Vendor_Socket.rfa → FMC_E_ElecFixture_VendorSocket.rfa' },
+{ title: 'Project batch', action: 'batch', color: '#C77400', text: 'One recipe plus a size table gives a set of families named for the project, saved in its WIP (D4).', example: 'F26001_E_ElecFixture_SocketDouble.rfa … in 01_WIP\\E\\Families' }
+];
+return { inputs, json, steps, modes };
+}
+}
+</script>
+</body>
+</html>

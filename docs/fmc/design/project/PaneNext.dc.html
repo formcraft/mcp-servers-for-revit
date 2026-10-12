@@ -44,6 +44,11 @@ a{color:#1F6FEB}a:hover{color:#1556BD}
               <span style="font-size: 11.5px; color: {{stripFg}}">{{docLine}}</span>
             </div>
           </div>
+          <div style="display: flex; align-items: center; gap: 8px">
+            <span style="font-size: 12px; color: #3B424D">Claude in shared models</span>
+            <button role="switch" aria-checked="{{sharedAria}}" aria-label="Claude in shared models" onClick="{{toggleShared}}" style="margin-left: auto; width: 40px; height: 22px; padding: 0; border-radius: 11px; border: none; background: {{swBg}}; position: relative; cursor: pointer"><span style="position: absolute; top: 3px; left: {{knobLeft}}; width: 16px; height: 16px; border-radius: 50%; background: #FFFFFF"></span></button>
+            <span style="width: 24px; font-size: 11.5px; color: #4A515C">{{sharedLabel}}</span>
+          </div>
         </div>
 
         <div role="tablist" aria-label="Pane sections" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 10px 12px 6px; padding: 3px; background: #EEF0F3; border-radius: 6px; gap: 2px">
@@ -96,7 +101,7 @@ a{color:#1F6FEB}a:hover{color:#1556BD}
       <div style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; color: #4A515C">Formcraft Browser · next</div>
       <h2 style="margin: 10px 0 0; font-size: 36px; line-height: 1.1; font-weight: 700; letter-spacing: -1px">Setup, QA, links and sync beside the model</h2>
     </div>
-    <div style="border-top: 3px solid #1F6FEB; padding-top: 10px"><div style="font-size: 18px; font-weight: 600">The active file decides what is open</div><div style="margin-top: 4px; font-size: 15px; line-height: 1.5; color: #3B424D">Switch between template, new project and live project at the top of the pane: setup buttons close on a live project, QA and audits stay open.</div></div>
+    <div style="border-top: 3px solid #1F6FEB; padding-top: 10px"><div style="font-size: 18px; font-weight: 600">The active file decides what is open</div><div style="margin-top: 4px; font-size: 15px; line-height: 1.5; color: #3B424D">Switch between template, new project and live project. On a shared model, setup opens only while your "Claude in shared models" toggle is on; QA and audits are always open.</div></div>
     <div style="border-top: 3px solid #1F6FEB; padding-top: 10px"><div style="font-size: 18px; font-weight: 600">Setup as a checklist</div><div style="margin-top: 4px; font-size: 15px; line-height: 1.5; color: #3B424D">Parameters, keynotes, electrical settings, sheets and links in order, each with its dry run, ending with a QA report.</div></div>
     <div style="border-top: 3px solid #1F6FEB; padding-top: 10px"><div style="font-size: 18px; font-weight: 600">QA on any model</div><div style="margin-top: 4px; font-size: 15px; line-height: 1.5; color: #3B424D">One run checks naming, bindings, keynotes, links, health and the IDS base, and saves the report to FMC_Reports.</div></div>
     <div style="border-top: 3px solid #1F6FEB; padding-top: 10px"><div style="font-size: 18px; font-weight: 600">Families and Activity carry over</div><div style="margin-top: 4px; font-size: 15px; line-height: 1.5; color: #3B424D">The family builder and the log work as they do in today's pane.</div></div>
@@ -108,7 +113,7 @@ a{color:#1F6FEB}a:hover{color:#1556BD}
 class Component extends DCLogic {
 constructor(props) {
 super(props);
-this.state = { tab: 'setup', doc: 'new' };
+this.state = { tab: 'setup', doc: 'new', shared: false };
 }
 renderVals() {
 const C = { ok: ['#E6F4EA', '#1E6B34'], ready: ['#E8F0FE', '#1556BD'], warn: ['#FFF4E0', '#6B4100'], bad: ['#FDECEA', '#A50E0E'], off: ['#EEF0F3', '#4A515C'] };
@@ -116,11 +121,13 @@ const R = (title, meta, status, kind) => ({ title, meta, status, chipBg: C[kind]
 const tab = this.state.tab, doc = this.state.doc;
 const live = doc === 'live', tpl = doc === 'template';
 
-const docInfo = {
+let docInfo = {
 template: { name: 'FMC_E_Template_v2.2.rte', line: 'Template in 06_Templates\\_Staging: setup tools open', open: true },
 new: { name: 'F26001-FMC-ZZ-ZZ-M3-E-0001.rvt', line: 'New project, not yet shared: setup tools open', open: true },
 live: { name: 'F26001-FMC-ZZ-ZZ-M3-A-0001.rvt', line: 'Live project, workshared: Claude reads and reports', open: false }
 }[doc];
+const shared = this.state.shared;
+if (live && shared) docInfo = Object.assign({}, docInfo, { line: 'Live project, workshared: setup tools open; you sync with central', open: true });
 const docBtns = [['template', 'Template'], ['new', 'New project'], ['live', 'Live project']].map(([id, label]) => ({
 label, pressed: id === doc ? 'true' : 'false', bg: id === doc ? '#FFFFFF' : 'transparent', fg: id === doc ? '#1A1D21' : '#4A515C',
 weight: id === doc ? '600' : '400', pick: () => this.setState({ doc: id })
@@ -141,23 +148,33 @@ const setupOpen = docInfo.open;
 let heading = '', rows = [], note = '', noteKind = 'warn', actions = [], footerNote = '';
 
 if (tab === 'setup') {
-heading = 'Setup steps for ' + docInfo.name;
-const steps = [
-['Bind shared parameters', 'Dictionary parameters to their categories'],
+heading = (tpl ? 'Template build for ' : 'Project steps for ') + docInfo.name;
+const steps = tpl ? [
+['Bind shared parameters', 'Dictionary to categories, Type or Instance'],
 ['Keynote file', '00_Standards\\02_Keynotes\\FMC_Keynotes.txt'],
-['Electrical settings', 'Voltages and distribution systems'],
-['Sheets from the register', 'Role E sheets on the FMC title block'],
-['Link models', 'From 02_Shared by shared coordinates'],
+['Filters and view templates', 'From FMC_Revit_Kit.xlsx'],
+['Schedules', 'Role schedules from the kit'],
+['Sheets', 'Role E sheets on the FMC title block'],
+['Electrical settings', 'Voltages and distribution systems']
+] : [
+['Project folder', 'Tree built in the folder you picked'],
+['Discipline models', 'From role templates, container names'],
+['Project data', 'Project Information and title blocks'],
+['Link models', 'Shared coordinates, pinned'],
+['Project families', 'F26001_… batch in 01_WIP (D4)'],
 ['QA report', 'Saved to FMC_Reports']
 ];
-const st = tpl ? [['Done', 'ok'], ['Done', 'ok'], ['Ready', 'ready'], ['Ready', 'ready'], ['Projects only', 'off'], ['Ready', 'ready']]
-: live ? [['Report only', 'off'], ['Report only', 'off'], ['Report only', 'off'], ['Report only', 'off'], ['Report only', 'off'], ['Ready', 'ready']]
-: [['Done', 'ok'], ['Done', 'ok'], ['Done', 'ok'], ['Ready', 'ready'], ['Ready', 'ready'], ['Ready', 'ready']];
+const D = ['Done', 'ok'], Rd = ['Ready', 'ready'], Ro = ['Report only', 'off'];
+const st = tpl ? [D, D, Rd, Rd, Rd, Rd]
+: live ? (shared ? [D, D, ['Update', 'ready'], Rd, Rd, Rd] : [Ro, Ro, Ro, Ro, Ro, Rd])
+: [D, D, D, Rd, Rd, Rd];
 rows = steps.map(([t, m], i) => R(t, m, st[i][0], st[i][1]));
-note = live ? 'Live project: setup tools are closed. Run QA here; setup runs on templates and new projects.' : 'Each step shows its dry run before it changes anything.';
+note = !setupOpen ? 'Shared model: setup tools are closed. Turn on "Claude in shared models" to open them.'
+: live ? 'Setup tools are open in a shared model. Claude never syncs: you synchronise with central.'
+: 'Each step shows its dry run before it changes anything.';
 noteKind = live ? 'warn' : 'ready';
-actions = [btn('Run setup (dry run)', setupOpen, true), btn('One step…', setupOpen, false)];
-footerNote = live ? 'Read only' : '3 steps left';
+actions = [btn(tpl ? 'Build template (dry run)' : 'Run setup (dry run)', setupOpen, true), btn('One step…', setupOpen, false)];
+footerNote = !setupOpen ? 'Read only' : tpl ? '4 steps left' : '3 steps left';
 } else if (tab === 'qa') {
 heading = 'Last run 10:52 on ' + docInfo.name;
 rows = [
@@ -187,7 +204,7 @@ R('F26001-FMC-ZZ-ZZ-M3-S-0001.rvt', 'In 02_Shared, ready to link', 'Ready', 'rea
 note = tpl ? 'Templates hold no links. Open a new project to link models.' : 'Acquire and publish coordinates stay with the BIM Coordinator (Manual 8.5).';
 noteKind = tpl ? 'off' : 'warn';
 actions = [btn('Link from 02_Shared…', setupOpen && !tpl, true), btn('Pin all', setupOpen && !tpl, false), btn('Audit', !tpl, false)];
-footerNote = live ? 'Audit only' : '';
+footerNote = !setupOpen ? 'Audit only' : '';
 } else if (tab === 'sync') {
 heading = 'Kit data against ' + docInfo.name;
 rows = [
@@ -196,8 +213,8 @@ R('Type keynotes not in the file', 'Codes to check with the kit owner', '2', 'wa
 R('Master data differences', 'Type values that differ from FMC_Master_Data', '14', 'warn'),
 R('Last sync', 'From FMC_Master_Data.xlsx', tpl ? 'Today' : 'Never', tpl ? 'ok' : 'off')
 ];
-note = live ? 'Live project: preview only.' : 'Apply shows the type-by-type changes in a dry run first.';
-noteKind = live ? 'warn' : 'ready';
+note = !setupOpen ? 'Shared model: preview only.' : 'Apply shows the type-by-type changes in a dry run first.';
+noteKind = !setupOpen ? 'warn' : 'ready';
 actions = [btn('Preview', true, false), btn('Apply (dry run)', setupOpen, true)];
 footerNote = '';
 } else if (tab === 'families') {
@@ -228,7 +245,9 @@ footerNote = 'Service on · port 8080';
 return {
 docBtns, tabs, heading, rows, actions, footerNote,
 docName: docInfo.name, docLine: docInfo.line,
-stripBg: setupOpen ? '#E6F4EA' : '#FDECEA', stripFg: setupOpen ? '#1E6B34' : '#A50E0E',
+stripBg: !setupOpen ? '#FDECEA' : live ? '#FFF4E0' : '#E6F4EA', stripFg: !setupOpen ? '#A50E0E' : live ? '#6B4100' : '#1E6B34',
+sharedAria: shared ? 'true' : 'false', sharedLabel: shared ? 'On' : 'Off', swBg: shared ? '#1F6FEB' : '#6B7280', knobLeft: shared ? '21px' : '3px',
+toggleShared: () => this.setState({ shared: !shared }),
 lockIcon: setupOpen ? 'M6 11h12v9H6z M8.5 11V8a3.5 3.5 0 0 1 6.8-1.2' : 'M6 11h12v9H6z M8.5 11V8a3.5 3.5 0 0 1 7 0v3',
 hasNote: note !== '', note, noteBg: C[noteKind][0], noteFg: C[noteKind][1],
 viewCaption: 'Level 1 plan · ' + docInfo.name
