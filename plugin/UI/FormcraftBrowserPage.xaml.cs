@@ -598,7 +598,8 @@ namespace revit_mcp_plugin.UI
             "• dry run: what a build would do, without building\n" +
             "• yes build: build after a dry run (yes build one by one: one Revit call per family)\n" +
             "• load test, then yes load test: in the active FMC_ChainTest file\n" +
-            "• pilot: select the kit's pilot set · probe: test the connection · start service";
+            "• pilot: select the kit's pilot set · probe: test the connection · start service\n" +
+            "• ask <question>: ask Claude about the open model (test build, read-only, uses the firm's API key) · ask reset";
 
         private void CommandBox_KeyDown(object sender, KeyEventArgs e)
         {
@@ -620,6 +621,15 @@ namespace revit_mcp_plugin.UI
         {
             string raw = CommandBox.Text.Trim();
             if (raw.Length == 0) return;
+            // "ask …", "claude …" or "? …" goes to Claude; everything else is a fixed command, matched exactly.
+            var ask = Regex.Match(raw, @"^(?:(?:ask|claude)(?:\s+(?<q>.*))?|\?\s*(?<q>.*))$", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            if (ask.Success)
+            {
+                CommandBox.Text = "";
+                TabFamilies.IsChecked = true;
+                await AskAsync(ask.Groups["q"].Value.Trim());
+                return;
+            }
             string c = Regex.Replace(Regex.Replace(raw.ToLowerInvariant(), "[^a-z0-9 ]", " "), @"\bplease\b", " ");
             c = Regex.Replace(c, @"\s+", " ").Trim();
             CommandBox.Text = "";
@@ -663,6 +673,55 @@ namespace revit_mcp_plugin.UI
                 default:
                     Messages(FamilyMessages, ("warn", $"Unknown command \"{raw}\". " + CommandHelp)); break;
             }
+        }
+
+        // ================================================================ Ask Claude (test build, read-only)
+
+        /// <summary>Previous questions and answers this session, so a follow-up ("and on level 2?") has context.</summary>
+        private readonly List<(string Role, string Text)> _askHistory = new List<(string Role, string Text)>();
+
+        /// <summary>
+        /// "ask &lt;question&gt;": the server's ask command (fmc/ask.ts) calls the Claude API with the firm's own API key and lets
+        /// Claude use read-only Revit tools only. Billed per token on the key's Claude Console account, not the Claude app
+        /// plan. Nothing here can change the model: changes still go through the buttons and their dry run.
+        /// </summary>
+        private async Task AskAsync(string question)
+        {
+            if (_busy != null) { Messages(FamilyMessages, ("warn", $"Busy ({_busy}). Try again when it finishes.")); return; }
+            if (question.Equals("reset", StringComparison.OrdinalIgnoreCase))
+            {
+                _askHistory.Clear();
+                Messages(FamilyMessages, ("done", "Ask Claude: conversation cleared."));
+                return;
+            }
+            if (question.Length == 0)
+            {
+                Messages(FamilyMessages, ("none", "Type a question after ask, e.g. \"ask how many sheets and views are in this model?\" " +
+                    "Claude can read the open model but not change it (test build)."));
+                return;
+            }
+            if (!SocketService.Instance.IsRunning)
+                Messages(FamilyMessages, ("warn", "The Claude service is off, so Claude can't read the model. It will answer from the question only. Type \"start service\" to connect."));
+
+            var history = new JArray(_askHistory.Select(h => new JObject { ["role"] = h.Role, ["text"] = h.Text }));
+            SetBusy("Asking Claude…");
+            CliResult r = await ServerCli.RunAsync("ask", new JObject { ["question"] = question, ["history"] = history });
+            SetBusy(null);
+            if (!r.Ok)
+            {
+                Messages(FamilyMessages, ("bad", "Ask Claude: " + string.Join(" ", r.Reasons())));
+                return;
+            }
+            string answer = r.Body.Value<string>("answer") ?? "";
+            _askHistory.Add(("user", question));
+            _askHistory.Add(("assistant", answer));
+            if (_askHistory.Count > 12) _askHistory.RemoveRange(0, _askHistory.Count - 12);
+
+            var tools = (r.Body["tools_used"] as JArray)?.Select(t => t.ToString()).Distinct().ToList() ?? new List<string>();
+            int inTok = r.Body["usage"]?.Value<int?>("input_tokens") ?? 0, outTok = r.Body["usage"]?.Value<int?>("output_tokens") ?? 0;
+            string meta = $"Read: {(tools.Count == 0 ? "nothing in Revit" : string.Join(", ", tools))} · {inTok + outTok:N0} tokens · " +
+                          $"{r.Body.Value<string>("model")} · today's budget left {r.Body.Value<int?>("budget_left") ?? 0:N0}";
+            Messages(FamilyMessages, ("none", "You: " + question), ("done", answer), ("none", meta));
         }
 
         // ================================================================ Files

@@ -11,6 +11,7 @@
  *   fmc_file | fmc_family   run the tool with the same argument schema and defaults; prints the tool's JSON reply
  *   specs                   the families and the pilot set in FMC_Family_Specs.json, for the pane's family picker
  *   probe                   connects to Revit on port 8080 and reads the open documents (tests the whole chain)
+ *   ask                     {question, history?}: asks Claude with the firm's API key; read-only Revit tools (fmc/ask.ts)
  *
  * Exit code 0: done. 1: refused or failed (the JSON says why). 2: bad usage.
  */
@@ -21,6 +22,7 @@ import { SpecFile } from "./specs.js";
 import { FMC_FILE_SHAPE, runFmcFile } from "../tools/fmc_file.js";
 import { FMC_FAMILY_SHAPE, runFmcFamily } from "../tools/fmc_family.js";
 import { withRevitConnection } from "../utils/ConnectionManager.js";
+import { askLogFile, readApiKey, runAsk } from "./ask.js";
 
 type Reply = { content: Array<{ type: "text"; text: string }>; isError?: boolean };
 
@@ -87,8 +89,19 @@ async function main() {
         return specs();
       case "probe":
         return await probe();
+      case "ask": {
+        const r = await runAsk(z.object({
+          question: z.string(),
+          history: z.array(z.object({ role: z.enum(["user", "assistant"]), text: z.string() })).optional(),
+        }).parse(await readStdin()), {
+          fetch, env: process.env, now: () => new Date(), apiKey: () => readApiKey(), logFile: askLogFile,
+          revit: (command, params) => withRevitConnection((c) => command === "fmc_document_info"
+            ? c.sendRaw(command, params, 15000) : c.sendCommand(command, params, 60000)),
+        });
+        return print(r.body, !r.ok);
+      }
       default:
-        process.stderr.write("Usage: node build/fmc/cli.js <fmc_file|fmc_family|specs|probe>  (JSON arguments on stdin)\n");
+        process.stderr.write("Usage: node build/fmc/cli.js <fmc_file|fmc_family|specs|probe|ask>  (JSON arguments on stdin)\n");
         process.exit(2);
     }
   } catch (e) {

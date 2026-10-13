@@ -247,7 +247,7 @@
                 <Grid>
                     <TextBox x:Name="CommandBox" KeyDown="CommandBox_KeyDown" TextChanged="CommandBox_TextChanged" VerticalContentAlignment="Center"
                              ToolTip="plan · dry run · yes build · yes build one by one · load test · yes load test · probe · pilot · start service · help"/>
-                    <TextBlock x:Name="CommandHint" Text="Type a command: plan, dry run, yes build, load test, help" Style="{StaticResource Meta}"
+                    <TextBlock x:Name="CommandHint" Text="Type a command (plan, dry run, yes build, help) or ask Claude: ask …" Style="{StaticResource Meta}"
                                IsHitTestVisible="False" VerticalAlignment="Center" Margin="8,0,0,0"/>
                 </Grid>
             </DockPanel>
